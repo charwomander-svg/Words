@@ -1,0 +1,39 @@
+[
+  { "Text": "ELEPHANT",  "Category": "Animals",       "Difficulty": "Medium", "Hint": "The largest land animal" },
+  { "Text": "DOLPHIN",   "Category": "Animals",       "Difficulty": "Medium", "Hint": "An intelligent marine mammal" },
+  { "Text": "PENGUIN",   "Category": "Animals",       "Difficulty": "Medium", "Hint": "A flightless bird from the South Pole" },
+  { "Text": "CROCODILE", "Category": "Animals",       "Difficulty": "Hard",   "Hint": "A large reptile found near rivers" },
+  { "Text": "CAT",       "Category": "Animals",       "Difficulty": "Easy",   "Hint": "A common household pet that meows" },
+  { "Text": "DOG",       "Category": "Animals",       "Difficulty": "Easy",   "Hint": "Known as man's best friend" },
+
+  { "Text": "PIZZA",     "Category": "Food",          "Difficulty": "Easy",   "Hint": "Italian dish with a round dough base" },
+  { "Text": "SPAGHETTI", "Category": "Food",          "Difficulty": "Medium", "Hint": "Long thin pasta noodles" },
+  { "Text": "AVOCADO",   "Category": "Food",          "Difficulty": "Medium", "Hint": "A green fruit used in guacamole" },
+  { "Text": "CROISSANT", "Category": "Food",          "Difficulty": "Hard",   "Hint": "A buttery, flaky French pastry" },
+
+  { "Text": "FOOTBALL",  "Category": "Sports",        "Difficulty": "Easy",   "Hint": "The world's most popular sport" },
+  { "Text": "BASKETBALL","Category": "Sports",        "Difficulty": "Easy",   "Hint": "You shoot hoops in this sport" },
+  { "Text": "GYMNASTICS","Category": "Sports",        "Difficulty": "Hard",   "Hint": "Olympic sport involving acrobatic routines" },
+  { "Text": "VOLLEYBALL","Category": "Sports",        "Difficulty": "Medium", "Hint": "A net sport played with six players per side" },
+
+  { "Text": "GRAVITY",   "Category": "Science",       "Difficulty": "Medium", "Hint": "The force that keeps you on Earth" },
+  { "Text": "ATOM",      "Category": "Science",       "Difficulty": "Easy",   "Hint": "The smallest unit of a chemical element" },
+  { "Text": "PHOTOSYNTHESIS","Category": "Science",   "Difficulty": "Hard",   "Hint": "Process plants use to convert sunlight to energy" },
+
+  { "Text": "LONDON",    "Category": "Geography",     "Difficulty": "Easy",   "Hint": "Capital city of the United Kingdom" },
+  { "Text": "AMAZON",    "Category": "Geography",     "Difficulty": "Medium", "Hint": "The world's largest river by volume" },
+  { "Text": "HIMALAYA",  "Category": "Geography",     "Difficulty": "Hard",   "Hint": "Mountain range that includes Mount Everest" },
+
+  { "Text": "MOVIE",     "Category": "Entertainment", "Difficulty": "Easy",   "Hint": "A feature-length film shown in cinemas" },
+  { "Text": "CONCERT",   "Category": "Entertainment", "Difficulty": "Medium", "Hint": "A live music performance event" },
+  { "Text": "ORCHESTRA", "Category": "Entertainment", "Difficulty": "Hard",   "Hint": "A large ensemble of classical musicians" },
+
+  { "Text": "KEYBOARD",  "Category": "Technology",    "Difficulty": "Easy",   "Hint": "Used to type on a computer" },
+  { "Text": "ALGORITHM", "Category": "Technology",    "Difficulty": "Hard",   "Hint": "A step-by-step problem-solving procedure" },
+  { "Text": "INTERNET",  "Category": "Technology",    "Difficulty": "Medium", "Hint": "Global network connecting billions of devices" },
+
+  { "Text": "DRAGON",    "Category": "General",       "Difficulty": "Medium", "Hint": "A mythical fire-breathing creature" },
+  { "Text": "CASTLE",    "Category": "General",       "Difficulty": "Easy",   "Hint": "A large fortified medieval structure" },
+  { "Text": "WIZARD",    "Category": "General",       "Difficulty": "Medium", "Hint": "A person who practices magic" },
+  { "Text": "LABYRINTH", "Category": "General",       "Difficulty": "Hard",   "Hint": "A complex maze with many paths" }
+]
