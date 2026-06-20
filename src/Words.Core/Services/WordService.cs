@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.IO.Compression;
 using Words.Core.Interfaces;
 using Words.Core.Models;
 
@@ -10,11 +11,21 @@ namespace Words.Core.Services;
 public class WordService : IWordService
 {
     private readonly IReadOnlyList<Word> _words;
+    private readonly IReadOnlyDictionary<int, string[]> _wordsByLength;
     private readonly Random _random;
 
     public WordService(IReadOnlyList<Word> words, Random? random = null)
+        : this(words, new Dictionary<int, string[]>(), random)
+    {
+    }
+
+    private WordService(
+        IReadOnlyList<Word> words,
+        IReadOnlyDictionary<int, string[]> wordsByLength,
+        Random? random = null)
     {
         _words = words ?? throw new ArgumentNullException(nameof(words));
+        _wordsByLength = wordsByLength ?? throw new ArgumentNullException(nameof(wordsByLength));
         _random = random ?? Random.Shared;
     }
 
@@ -48,7 +59,34 @@ public class WordService : IWordService
             e.Hint
         )).ToList();
 
-        return new WordService(parsed, random);
+        return new WordService(parsed, LoadDictionaryWords(), random);
+    }
+
+    private static IReadOnlyDictionary<int, string[]> LoadDictionaryWords()
+    {
+        const string resourceName = "Words.Core.Data.english-words-4to20.txt.gz";
+        using var stream = typeof(WordService).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
+        using var gzip = new GZipStream(stream, CompressionMode.Decompress);
+        using var reader = new StreamReader(gzip);
+
+        var byLength = new Dictionary<int, List<string>>();
+        string? line;
+        while ((line = reader.ReadLine()) is not null)
+        {
+            if (line.Length == 0)
+                continue;
+
+            if (!byLength.TryGetValue(line.Length, out var words))
+            {
+                words = [];
+                byLength[line.Length] = words;
+            }
+
+            words.Add(line);
+        }
+
+        return byLength.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
     }
 
     /// <inheritdoc/>
@@ -67,6 +105,30 @@ public class WordService : IWordService
 
     /// <inheritdoc/>
     public IReadOnlyList<Word> GetAllWords() => _words;
+
+    /// <inheritdoc/>
+    public string GetRandomWord(int length)
+    {
+        if (length < 4 || length > 20)
+            throw new ArgumentOutOfRangeException(nameof(length), "Word length must be between 4 and 20 letters.");
+
+        var pool = GetWordsByLength(length);
+        if (pool.Count == 0)
+            throw new InvalidOperationException($"No words found with length '{length}'.");
+
+        return pool[_random.Next(pool.Count)];
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<string> GetWordsByLength(int length)
+    {
+        if (length < 4 || length > 20)
+            throw new ArgumentOutOfRangeException(nameof(length), "Word length must be between 4 and 20 letters.");
+
+        return _wordsByLength.TryGetValue(length, out var words)
+            ? words
+            : Array.Empty<string>();
+    }
 
     // DTO used only for JSON deserialization
     private sealed record WordEntry(string Text, string Category, string Difficulty, string Hint);

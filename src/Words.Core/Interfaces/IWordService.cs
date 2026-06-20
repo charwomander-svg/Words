@@ -16,4 +16,14 @@ public interface IWordService
     /// Returns all available words.
     /// </summary>
     IReadOnlyList<Word> GetAllWords();
+
+    /// <summary>
+    /// Returns a random dictionary word with the requested length.
+    /// </summary>
+    string GetRandomWord(int length);
+
+    /// <summary>
+    /// Returns all dictionary words with the requested length.
+    /// </summary>
+    IReadOnlyList<string> GetWordsByLength(int length);
 }

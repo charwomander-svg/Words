@@ -42,4 +42,21 @@ public class WordServiceTests
         var service = WordService.FromEmbeddedResource();
         Assert.NotEmpty(service.GetAllWords());
     }
+
+    [Fact]
+    public void GetRandomWordByLength_ReturnsRequestedLength()
+    {
+        var service = WordService.FromEmbeddedResource(new Random(0));
+        var word = service.GetRandomWord(4);
+        Assert.Equal(4, word.Length);
+    }
+
+    [Fact]
+    public void GetWordsByLength_ReturnsOnlyRequestedLength()
+    {
+        var service = WordService.FromEmbeddedResource();
+        var words = service.GetWordsByLength(8);
+        Assert.NotEmpty(words);
+        Assert.All(words, word => Assert.Equal(8, word.Length));
+    }
 }
