@@ -1,6 +1,7 @@
 using Words.Core.Models;
 using Words.Core.Services;
 using Words.Xbox.Audio;
+using Words.Xbox.Presentation;
 
 namespace Words.Xbox;
 
@@ -26,22 +27,40 @@ public class XboxGameHost
     /// </summary>
     public void Run()
     {
-        Console.WriteLine("=== Guess That Word – Xbox Edition ===");
-        Console.WriteLine();
-
-        _audio.EnterTitleScreen();
         var player = CreatePlayer();
-        PromptCredits(player);
-
+        var reducedMotion = IsReducedMotionEnabled();
+        var titleFrame = 0;
         bool keepPlaying = true;
         while (keepPlaying)
         {
-            var config = SelectConfig();
-            PlayRound(player, config);
             _audio.EnterTitleScreen();
+            Console.WriteLine();
+            Console.WriteLine(XboxPresentation.ComposeTitleScreen(player, titleFrame++, reducedMotion));
+            Console.WriteLine();
 
-            Console.Write("\nPlay again? (Y/N): ");
-            keepPlaying = Console.ReadLine()?.Trim().Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
+            var choice = PromptEnum<XboxTitleMenuChoice>("Choose a menu option: ");
+            switch (choice)
+            {
+                case XboxTitleMenuChoice.Play:
+                    var config = SelectConfig();
+                    PlayRound(player, config);
+                    break;
+                case XboxTitleMenuChoice.Tutorial:
+                    ShowInfoPage(player, _audio.EnterTitleScreen, XboxPresentation.ComposeTutorialPage());
+                    break;
+                case XboxTitleMenuChoice.Credits:
+                    ShowCredits(player);
+                    break;
+                case XboxTitleMenuChoice.Privacy:
+                    ShowInfoPage(player, _audio.EnterTitleScreen, XboxPresentation.ComposePrivacyPage());
+                    break;
+                case XboxTitleMenuChoice.Legal:
+                    ShowInfoPage(player, _audio.EnterTitleScreen, XboxPresentation.ComposeLegalPage());
+                    break;
+                case XboxTitleMenuChoice.Quit:
+                    keepPlaying = false;
+                    break;
+            }
         }
 
         Console.WriteLine($"\nThanks for playing, {player.GamerTag}!");
@@ -64,20 +83,25 @@ public class XboxGameHost
         return new Player(tag);
     }
 
-    private void PromptCredits(Player player)
+    private void ShowCredits(Player player)
     {
-        Console.Write("View credits now? (Y/N): ");
-        var input = Console.ReadLine()?.Trim();
-        if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
-            return;
-
         _audio.EnterCredits();
         Console.WriteLine();
-        Console.WriteLine("=== Credits ===");
-        Console.WriteLine("Words: Xbox edition");
-        Console.WriteLine("Concept, code, and chaos: the Words team");
-        Console.WriteLine("================");
+        Console.WriteLine(XboxPresentation.ComposeCreditsPage(player));
+        Console.WriteLine();
         player.RecordCreditsViewed();
+        WaitForContinue();
+        _audio.EnterTitleScreen();
+    }
+
+    private void ShowInfoPage(Player player, Action enterMusic, string page)
+    {
+        enterMusic();
+        Console.WriteLine();
+        Console.WriteLine(page);
+        Console.WriteLine();
+        Console.WriteLine($"Player: {player.GamerTag}");
+        WaitForContinue();
     }
 
     private static GameConfig SelectConfig()
@@ -103,11 +127,9 @@ public class XboxGameHost
 
         _audio.EnterRound();
         _audio.PlayRoundStart();
-        Console.WriteLine($"\nHint: {session.Hint}");
-        Console.WriteLine($"Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
-        Console.WriteLine($"Guessed: (none)");
+        Console.WriteLine();
+        Console.WriteLine(XboxPresentation.ComposeRoundScreen(session, pendingGuess: string.Empty, selectedIndex: 0));
         Console.WriteLine(XboxInputScheme.Describe());
-        Console.WriteLine("Layout: QWERTYUIOP / ASDFGHJKL / ZXCVBNM");
 
         var selectedIndex = 0;
         var pendingGuess = string.Empty;
@@ -194,9 +216,8 @@ public class XboxGameHost
                 break;
             }
 
-            Console.WriteLine($"  Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
-            Console.WriteLine($"  Guessed: {string.Join(" ", session.GuessedLetters.Order())}");
-            Console.WriteLine($"  Hints left: {(session.CanUseHints ? session.RemainingHints : 0)}");
+            Console.WriteLine();
+            Console.WriteLine(XboxPresentation.ComposeRoundScreen(session, pendingGuess, selectedIndex));
         }
 
         if (session.Status == GameStatus.Won)
@@ -223,6 +244,8 @@ public class XboxGameHost
         }
 
         // GameService.EndGame is called when the round finishes.
+        WaitForContinue();
+        _audio.EnterTitleScreen();
     }
 
     private static int CycleQwerty(int index, int offset)
@@ -253,5 +276,15 @@ public class XboxGameHost
                 return value;
             Console.WriteLine($"  Invalid choice. Enter a number between {min} and {max}.");
         }
+    }
+
+    private static bool IsReducedMotionEnabled() =>
+        string.Equals(Environment.GetEnvironmentVariable("WORDS_REDUCED_MOTION"), "1", StringComparison.OrdinalIgnoreCase) ||
+        Console.IsOutputRedirected;
+
+    private static void WaitForContinue()
+    {
+        Console.Write("Press Enter to continue...");
+        Console.ReadLine();
     }
 }
