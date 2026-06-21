@@ -5,7 +5,10 @@ public enum XboxRoundAction
     Invalid,
     GuessLetter,
     ShowHelp,
-    QuitRound
+    QuitRound,
+    PreviousLetter,
+    NextLetter,
+    SubmitSelectedLetter
 }
 
 public readonly record struct XboxRoundCommand(XboxRoundAction Action, char Letter = '\0');
@@ -25,9 +28,31 @@ public static class XboxInputScheme
         }
 
         if (input.Equals("q", StringComparison.OrdinalIgnoreCase) ||
-            input.Equals("quit", StringComparison.OrdinalIgnoreCase))
+            input.Equals("quit", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("back", StringComparison.OrdinalIgnoreCase))
         {
             return new XboxRoundCommand(XboxRoundAction.QuitRound);
+        }
+
+        if (input.Equals("left", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("prev", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("previous", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.PreviousLetter);
+        }
+
+        if (input.Equals("right", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("next", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.NextLetter);
+        }
+
+        if (input.Equals("enter", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("submit", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("confirm", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("select", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.SubmitSelectedLetter);
         }
 
         return input.Length == 1 && char.IsLetter(input[0])
@@ -36,5 +61,5 @@ public static class XboxInputScheme
     }
 
     public static string Describe() =>
-        "Controls: [A-Z]=guess, ? or HELP=show controls, Q or QUIT=end round";
+        "Controls: [A-Z]=guess, LEFT/RIGHT=cycle letter, ENTER/SUBMIT=guess selected letter, ? or HELP=show controls, Q or QUIT/BACK=end round";
 }

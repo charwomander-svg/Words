@@ -7,4 +7,4 @@ For the Xbox game "guess that word"
 - Guess budget: 6 base guesses plus 1 per extra word
 - In-memory leaderboard via `ScoreService`
 - PvP match system with head-to-head race-to-N rounds and open-ended play
-- In-round controls: letter guesses, `?` help, `Q` quit round
+- In-round controls: letter guesses, controller-style `LEFT/RIGHT` selection, `ENTER/SUBMIT` guess, `?` help, `Q` quit round

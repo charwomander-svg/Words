@@ -80,9 +80,11 @@ public class XboxGameHost
         Console.WriteLine($"Guessed: (none)");
         Console.WriteLine(XboxInputScheme.Describe());
 
+        var selectedLetter = 'A';
+
         while (session.Status == GameStatus.InProgress)
         {
-            Console.Write("\nInput: ");
+            Console.Write($"\nInput [{selectedLetter}]: ");
             var command = XboxInputScheme.ParseRoundCommand(Console.ReadLine());
 
             switch (command.Action)
@@ -96,7 +98,21 @@ public class XboxGameHost
                 case XboxRoundAction.QuitRound:
                     Console.WriteLine("Round ended early.");
                     return;
+                case XboxRoundAction.PreviousLetter:
+                    selectedLetter = CycleLetter(selectedLetter, -1);
+                    Console.WriteLine($"  Selected letter: {selectedLetter}");
+                    continue;
+                case XboxRoundAction.NextLetter:
+                    selectedLetter = CycleLetter(selectedLetter, 1);
+                    Console.WriteLine($"  Selected letter: {selectedLetter}");
+                    continue;
+                case XboxRoundAction.SubmitSelectedLetter:
+                    command = new XboxRoundCommand(XboxRoundAction.GuessLetter, selectedLetter);
+                    break;
             }
+
+            if (command.Action == XboxRoundAction.GuessLetter)
+                selectedLetter = command.Letter;
 
             var result = _gameService.SubmitGuess(session.Id, command.Letter);
 
@@ -129,6 +145,14 @@ public class XboxGameHost
 
         // EndGame is called automatically by SubmitGuess once the session is
         // no longer InProgress, so no explicit call is needed here.
+    }
+
+    private static char CycleLetter(char letter, int offset)
+    {
+        var normalized = char.ToUpperInvariant(letter);
+        var zeroBased = normalized - 'A';
+        var next = (zeroBased + offset + 26) % 26;
+        return (char)('A' + next);
     }
 
     private static T PromptEnum<T>(string prompt) where T : struct, Enum
