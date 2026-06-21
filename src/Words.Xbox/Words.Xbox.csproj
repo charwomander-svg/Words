@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Words.Core\Words.Core.csproj" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -11,5 +12,9 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Words.Xbox</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Audio\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>

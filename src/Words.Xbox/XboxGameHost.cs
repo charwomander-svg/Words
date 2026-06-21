@@ -1,5 +1,6 @@
 using Words.Core.Models;
 using Words.Core.Services;
+using Words.Xbox.Audio;
 
 namespace Words.Xbox;
 
@@ -12,10 +13,12 @@ public class XboxGameHost
 {
     private static readonly char[] QwertyOrder = "QWERTYUIOPASDFGHJKLZXCVBNM".ToCharArray();
     private readonly GameService _gameService;
+    private readonly GameAudioService _audio;
 
-    public XboxGameHost(GameService gameService)
+    public XboxGameHost(GameService gameService, GameAudioService audio)
     {
         _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
+        _audio = audio ?? throw new ArgumentNullException(nameof(audio));
     }
 
     /// <summary>
@@ -26,6 +29,7 @@ public class XboxGameHost
         Console.WriteLine("=== Guess That Word – Xbox Edition ===");
         Console.WriteLine();
 
+        _audio.EnterTitleScreen();
         var player = CreatePlayer();
         PromptCredits(player);
 
@@ -34,6 +38,7 @@ public class XboxGameHost
         {
             var config = SelectConfig();
             PlayRound(player, config);
+            _audio.EnterTitleScreen();
 
             Console.Write("\nPlay again? (Y/N): ");
             keepPlaying = Console.ReadLine()?.Trim().Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -59,13 +64,14 @@ public class XboxGameHost
         return new Player(tag);
     }
 
-    private static void PromptCredits(Player player)
+    private void PromptCredits(Player player)
     {
         Console.Write("View credits now? (Y/N): ");
         var input = Console.ReadLine()?.Trim();
         if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
             return;
 
+        _audio.EnterCredits();
         Console.WriteLine();
         Console.WriteLine("=== Credits ===");
         Console.WriteLine("Words: Xbox edition");
@@ -95,6 +101,8 @@ public class XboxGameHost
             return;
         }
 
+        _audio.EnterRound();
+        _audio.PlayRoundStart();
         Console.WriteLine($"\nHint: {session.Hint}");
         Console.WriteLine($"Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
         Console.WriteLine($"Guessed: (none)");
@@ -123,20 +131,24 @@ public class XboxGameHost
                     return;
                 case XboxRoundAction.MovePrevious:
                     selectedIndex = CycleQwerty(selectedIndex, -1);
+                    _audio.PlayNavigate();
                     Console.WriteLine($"  Selected letter: {QwertyOrder[selectedIndex]}");
                     continue;
                 case XboxRoundAction.MoveNext:
                     selectedIndex = CycleQwerty(selectedIndex, 1);
+                    _audio.PlayNavigate();
                     Console.WriteLine($"  Selected letter: {QwertyOrder[selectedIndex]}");
                     continue;
                 case XboxRoundAction.ConfirmLetter:
                     pendingGuess += selectedLetter;
+                    _audio.PlayConfirm();
                     Console.WriteLine($"  Added '{selectedLetter}'");
                     continue;
                 case XboxRoundAction.DeleteLetter:
                     if (pendingGuess.Length > 0)
                     {
                         pendingGuess = pendingGuess[..^1];
+                        _audio.PlayDelete();
                         Console.WriteLine($"  Deleted last letter. Word is now [{pendingGuess}]");
                     }
                     else
@@ -146,6 +158,8 @@ public class XboxGameHost
                     continue;
                 case XboxRoundAction.RequestHint:
                     var hint = session.RequestHint();
+                    if (hint.IsAvailable)
+                        _audio.PlayHint();
                     Console.WriteLine(hint.Message);
                     continue;
                 case XboxRoundAction.SubmitWord:
@@ -161,10 +175,12 @@ public class XboxGameHost
 
                     if (correct)
                     {
+                        _audio.PlayCorrectGuess();
                         Console.WriteLine($"  ✓ Submitted '{pendingGuess}'.");
                     }
                     else
                     {
+                        _audio.PlayIncorrectGuess();
                         Console.WriteLine($"  ✗ '{pendingGuess}' is not in the word.");
                     }
 
@@ -186,10 +202,12 @@ public class XboxGameHost
         if (session.Status == GameStatus.Won)
         {
             int score = session.CalculateScore();
+            _audio.PlayRoundEnd();
             Console.WriteLine($"\n🎉 You guessed the word! +{score} points");
         }
         else
         {
+            _audio.PlayRoundEnd();
             Console.WriteLine($"\n💀 Out of guesses! Better luck next time.");
         }
 
@@ -198,6 +216,7 @@ public class XboxGameHost
             .ToList();
         if (newAchievements.Count > 0)
         {
+            _audio.PlayAchievement();
             Console.WriteLine("🏆 Achievement unlocked:");
             foreach (var achievement in newAchievements)
                 Console.WriteLine($"  - {achievement}");
