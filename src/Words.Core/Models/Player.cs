@@ -15,6 +15,9 @@ public class Player
     ];
     private readonly HashSet<string> _unlockedAchievements = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _achievementOrder = [];
+    private bool _creditsViewed;
+    private bool _firstHeadToHeadWin;
+    private bool _tenLetterWordSolvedWithoutHints;
 
     public string GamerTag { get; }
     public int Score { get; private set; }
@@ -67,6 +70,24 @@ public class Player
         UpdateAchievements();
     }
 
+    public void RecordCreditsViewed()
+    {
+        _creditsViewed = true;
+        UpdateAchievements();
+    }
+
+    public void RecordHeadToHeadWin()
+    {
+        _firstHeadToHeadWin = true;
+        UpdateAchievements();
+    }
+
+    public void RecordTenLetterWordSolvedWithoutHints()
+    {
+        _tenLetterWordSolvedWithoutHints = true;
+        UpdateAchievements();
+    }
+
     private void UpdateAchievements()
     {
         UnlockAchievement("First Win", GamesWon >= 1);
@@ -75,6 +96,9 @@ public class Player
         UnlockAchievement("Arcade Veteran", Score >= 500);
         UnlockAchievement("Rising Star", Rank >= 3);
         UnlockAchievement("Legend", Rank >= 5);
+        UnlockAchievement("Backstage Pass", _creditsViewed);
+        UnlockAchievement("Head-to-Head Challenger", _firstHeadToHeadWin);
+        UnlockAchievement("No-Hint Ten", _tenLetterWordSolvedWithoutHints);
     }
 
     private void UnlockAchievement(string achievement, bool condition)

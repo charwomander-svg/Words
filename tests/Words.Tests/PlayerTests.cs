@@ -29,4 +29,18 @@ public class PlayerTests
         Assert.Contains("Century Club", player.UnlockedAchievements);
         Assert.Contains("Rising Star", player.UnlockedAchievements);
     }
+
+    [Fact]
+    public void TitleUpdateAchievements_UnlockIndividually()
+    {
+        var player = new Player("Tester");
+
+        player.RecordCreditsViewed();
+        player.RecordHeadToHeadWin();
+        player.RecordTenLetterWordSolvedWithoutHints();
+
+        Assert.Contains("Backstage Pass", player.UnlockedAchievements);
+        Assert.Contains("Head-to-Head Challenger", player.UnlockedAchievements);
+        Assert.Contains("No-Hint Ten", player.UnlockedAchievements);
+    }
 }

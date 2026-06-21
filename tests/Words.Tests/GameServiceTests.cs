@@ -76,6 +76,24 @@ public class GameServiceTests
     }
 
     [Fact]
+    public void EndGame_WonTenLetterWordWithoutHints_UnlocksAchievement()
+    {
+        var words = new List<Word>
+        {
+            new("BLUEPRINTS", WordCategory.General, GameDifficulty.Medium, "Planning docs")
+        };
+        var service = new GameService(new WordService(words), new ScoreService());
+        var player = new Player("XboxGamer");
+        var config = new GameConfig { WordLength = 10 };
+        var session = service.StartGame(player, config);
+
+        foreach (var letter in "BLUEPRINTS")
+            service.SubmitGuess(session.Id, letter);
+
+        Assert.Contains("No-Hint Ten", player.UnlockedAchievements);
+    }
+
+    [Fact]
     public void GetSession_UnknownId_Throws()
     {
         var (service, _) = Setup();

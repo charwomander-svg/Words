@@ -27,6 +27,7 @@ public class XboxGameHost
         Console.WriteLine();
 
         var player = CreatePlayer();
+        PromptCredits(player);
 
         bool keepPlaying = true;
         while (keepPlaying)
@@ -56,6 +57,21 @@ public class XboxGameHost
             tag = Console.ReadLine()?.Trim();
         }
         return new Player(tag);
+    }
+
+    private static void PromptCredits(Player player)
+    {
+        Console.Write("View credits now? (Y/N): ");
+        var input = Console.ReadLine()?.Trim();
+        if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        Console.WriteLine();
+        Console.WriteLine("=== Credits ===");
+        Console.WriteLine("Words: Xbox edition");
+        Console.WriteLine("Concept, code, and chaos: the Words team");
+        Console.WriteLine("================");
+        player.RecordCreditsViewed();
     }
 
     private static GameConfig SelectConfig()

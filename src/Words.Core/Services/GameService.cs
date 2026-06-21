@@ -67,6 +67,14 @@ public class GameService : IGameService
         session.Player.RecordGameResult(session.Status == GameStatus.Won);
         if (score > 0)
             _scoreService.AwardPoints(session.Player, score);
+
+        if (session.Status == GameStatus.Won
+            && session.Config.WordLength == 10
+            && session.HintsUsed == 0)
+        {
+            session.Player.RecordTenLetterWordSolvedWithoutHints();
+        }
+
         _sessions.Remove(sessionId);
     }
 

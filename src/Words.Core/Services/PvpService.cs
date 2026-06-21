@@ -51,6 +51,11 @@ public class PvpService : IPvpService
             }
             else
             {
+                session.Player.RecordHeadToHeadWin();
+
+                if (session.Config.WordLength == 10 && session.HintsUsed == 0)
+                    session.Player.RecordTenLetterWordSolvedWithoutHints();
+
                 session.Player.AddExperience(CalculateMatchVictoryBonus(match.PlayerOneSession.Config.WordLength, match.TargetWins ?? match.RoundNumber));
             }
         }

@@ -72,6 +72,7 @@ public class PvpServiceTests
         Assert.Equal("Alpha", match.Winner?.GamerTag);
         Assert.Equal(1, match.PlayerOneWins);
         Assert.True(match.PlayerOne.ExperiencePoints > 0);
+        Assert.Contains("Head-to-Head Challenger", match.PlayerOne.UnlockedAchievements);
     }
 
     [Fact]
