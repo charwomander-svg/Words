@@ -20,6 +20,15 @@ public class GameConfig
     /// <summary>Bonus multiplier applied for each remaining guess at win time.</summary>
     public int BonusPerRemainingGuess { get; init; } = 10;
 
+    /// <summary>Whether hint requests are enabled for this session.</summary>
+    public bool HintsEnabled { get; init; } = true;
+
+    /// <summary>Maximum hint requests allowed per word.</summary>
+    public int MaxHintsPerWord { get; init; } = 3;
+
+    /// <summary>Point cost per hint request.</summary>
+    public int HintPointCost { get; init; } = 25;
+
     /// <summary>
     /// The effective guess budget after accounting for concurrent words.
     /// </summary>
@@ -38,5 +47,11 @@ public class GameConfig
 
         if (MaxIncorrectGuesses < 1)
             throw new ArgumentOutOfRangeException(nameof(MaxIncorrectGuesses), "Maximum incorrect guesses must be positive.");
+
+        if (MaxHintsPerWord < 0)
+            throw new ArgumentOutOfRangeException(nameof(MaxHintsPerWord), "Max hints per word cannot be negative.");
+
+        if (HintPointCost < 0)
+            throw new ArgumentOutOfRangeException(nameof(HintPointCost), "Hint point cost cannot be negative.");
     }
 }

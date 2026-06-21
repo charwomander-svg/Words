@@ -41,12 +41,17 @@ public class PvpService : IPvpService
 
         if (session.Status == GameStatus.Won && match.Status != PvpMatchStatus.Completed)
         {
+            session.Player.AddExperience(CalculateRoundExperience(session.Config.WordLength));
             match.RecordRoundWin(session.Player);
 
             if (match.Status != PvpMatchStatus.Completed)
             {
                 var (playerOneSession, playerTwoSession) = CreateRound(match.PlayerOne, match.PlayerTwo, match.PlayerOneSession.Config.WordLength);
                 match.StartNextRound(playerOneSession, playerTwoSession);
+            }
+            else
+            {
+                session.Player.AddExperience(CalculateMatchVictoryBonus(match.PlayerOneSession.Config.WordLength, match.TargetWins ?? match.RoundNumber));
             }
         }
 
@@ -65,7 +70,7 @@ public class PvpService : IPvpService
     private (GameSession PlayerOneSession, GameSession PlayerTwoSession) CreateRound(Player playerOne, Player playerTwo, int wordLength)
     {
         var word = _wordService.GetRandomWord(wordLength);
-        var config = new GameConfig { WordLength = wordLength };
+        var config = new GameConfig { WordLength = wordLength, HintsEnabled = false };
         var sharedWord = new Word(word, WordCategory.General, GameDifficulty.Medium, $"{wordLength}-letter word");
 
         return (
@@ -73,4 +78,10 @@ public class PvpService : IPvpService
             new GameSession(playerTwo, sharedWord, config)
         );
     }
+
+    private static int CalculateRoundExperience(int wordLength) =>
+        Math.Max(10, wordLength * 12);
+
+    private static int CalculateMatchVictoryBonus(int wordLength, int roundsWon) =>
+        Math.Max(15, wordLength * 8 + roundsWon * 20);
 }

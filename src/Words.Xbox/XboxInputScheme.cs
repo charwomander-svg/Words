@@ -3,12 +3,14 @@ namespace Words.Xbox;
 public enum XboxRoundAction
 {
     Invalid,
-    GuessLetter,
+    MovePrevious,
+    MoveNext,
+    ConfirmLetter,
+    DeleteLetter,
+    SubmitWord,
+    RequestHint,
     ShowHelp,
     QuitRound,
-    PreviousLetter,
-    NextLetter,
-    SubmitSelectedLetter
 }
 
 public readonly record struct XboxRoundCommand(XboxRoundAction Action, char Letter = '\0');
@@ -38,28 +40,45 @@ public static class XboxInputScheme
             input.Equals("prev", StringComparison.OrdinalIgnoreCase) ||
             input.Equals("previous", StringComparison.OrdinalIgnoreCase))
         {
-            return new XboxRoundCommand(XboxRoundAction.PreviousLetter);
+            return new XboxRoundCommand(XboxRoundAction.MovePrevious);
         }
 
         if (input.Equals("right", StringComparison.OrdinalIgnoreCase) ||
             input.Equals("next", StringComparison.OrdinalIgnoreCase))
         {
-            return new XboxRoundCommand(XboxRoundAction.NextLetter);
+            return new XboxRoundCommand(XboxRoundAction.MoveNext);
         }
 
-        if (input.Equals("enter", StringComparison.OrdinalIgnoreCase) ||
-            input.Equals("submit", StringComparison.OrdinalIgnoreCase) ||
+        if (input.Equals("a", StringComparison.OrdinalIgnoreCase) ||
             input.Equals("confirm", StringComparison.OrdinalIgnoreCase) ||
             input.Equals("select", StringComparison.OrdinalIgnoreCase))
         {
-            return new XboxRoundCommand(XboxRoundAction.SubmitSelectedLetter);
+            return new XboxRoundCommand(XboxRoundAction.ConfirmLetter);
         }
 
-        return input.Length == 1 && char.IsLetter(input[0])
-            ? new XboxRoundCommand(XboxRoundAction.GuessLetter, char.ToUpperInvariant(input[0]))
-            : new XboxRoundCommand(XboxRoundAction.Invalid);
+        if (input.Equals("b", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("delete", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("backspace", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.DeleteLetter);
+        }
+
+        if (input.Equals("x", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("submit", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("enter", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.SubmitWord);
+        }
+
+        if (input.Equals("y", StringComparison.OrdinalIgnoreCase) ||
+            input.Equals("hint", StringComparison.OrdinalIgnoreCase))
+        {
+            return new XboxRoundCommand(XboxRoundAction.RequestHint);
+        }
+
+        return new XboxRoundCommand(XboxRoundAction.Invalid);
     }
 
     public static string Describe() =>
-        "Controls: [A-Z]=guess, LEFT/RIGHT=cycle letter, ENTER/SUBMIT=guess selected letter, ? or HELP=show controls, Q or QUIT/BACK=end round";
+        "Controls: LEFT/RIGHT=cycle QWERTY letters, A=confirm, B=delete, X=submit, Y=hint, ? or HELP=show controls, Q or QUIT/BACK=end round";
 }

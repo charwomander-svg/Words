@@ -10,6 +10,7 @@ namespace Words.Xbox;
 /// </summary>
 public class XboxGameHost
 {
+    private static readonly char[] QwertyOrder = "QWERTYUIOPASDFGHJKLZXCVBNM".ToCharArray();
     private readonly GameService _gameService;
 
     public XboxGameHost(GameService gameService)
@@ -79,18 +80,21 @@ public class XboxGameHost
         Console.WriteLine($"Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
         Console.WriteLine($"Guessed: (none)");
         Console.WriteLine(XboxInputScheme.Describe());
+        Console.WriteLine("Layout: QWERTYUIOP / ASDFGHJKL / ZXCVBNM");
 
-        var selectedLetter = 'A';
+        var selectedIndex = 0;
+        var pendingGuess = string.Empty;
 
         while (session.Status == GameStatus.InProgress)
         {
-            Console.Write($"\nInput [{selectedLetter}]: ");
+            var selectedLetter = QwertyOrder[selectedIndex];
+            Console.Write($"\nInput [{selectedLetter}] Word [{pendingGuess}]: ");
             var command = XboxInputScheme.ParseRoundCommand(Console.ReadLine());
 
             switch (command.Action)
             {
                 case XboxRoundAction.Invalid:
-                    Console.WriteLine("Please enter a single letter, ? for help, or Q to quit the round.");
+                    Console.WriteLine("Use A/B/X/Y, LEFT/RIGHT, ? or Q.");
                     continue;
                 case XboxRoundAction.ShowHelp:
                     Console.WriteLine(XboxInputScheme.Describe());
@@ -98,39 +102,66 @@ public class XboxGameHost
                 case XboxRoundAction.QuitRound:
                     Console.WriteLine("Round ended early.");
                     return;
-                case XboxRoundAction.PreviousLetter:
-                    selectedLetter = CycleLetter(selectedLetter, -1);
-                    Console.WriteLine($"  Selected letter: {selectedLetter}");
+                case XboxRoundAction.MovePrevious:
+                    selectedIndex = CycleQwerty(selectedIndex, -1);
+                    Console.WriteLine($"  Selected letter: {QwertyOrder[selectedIndex]}");
                     continue;
-                case XboxRoundAction.NextLetter:
-                    selectedLetter = CycleLetter(selectedLetter, 1);
-                    Console.WriteLine($"  Selected letter: {selectedLetter}");
+                case XboxRoundAction.MoveNext:
+                    selectedIndex = CycleQwerty(selectedIndex, 1);
+                    Console.WriteLine($"  Selected letter: {QwertyOrder[selectedIndex]}");
                     continue;
-                case XboxRoundAction.SubmitSelectedLetter:
-                    command = new XboxRoundCommand(XboxRoundAction.GuessLetter, selectedLetter);
+                case XboxRoundAction.ConfirmLetter:
+                    pendingGuess += selectedLetter;
+                    Console.WriteLine($"  Added '{selectedLetter}'");
+                    continue;
+                case XboxRoundAction.DeleteLetter:
+                    if (pendingGuess.Length > 0)
+                    {
+                        pendingGuess = pendingGuess[..^1];
+                        Console.WriteLine($"  Deleted last letter. Word is now [{pendingGuess}]");
+                    }
+                    else
+                    {
+                        Console.WriteLine("  Nothing to delete.");
+                    }
+                    continue;
+                case XboxRoundAction.RequestHint:
+                    var hint = session.RequestHint();
+                    Console.WriteLine(hint.Message);
+                    continue;
+                case XboxRoundAction.SubmitWord:
+                    if (pendingGuess.Length == 0)
+                    {
+                        Console.WriteLine("  Add at least one letter before submitting.");
+                        continue;
+                    }
+
+                    bool correct = pendingGuess.Length == 1
+                        ? session.Guess(pendingGuess[0]).Outcome == GuessOutcome.Correct
+                        : session.GuessWord(pendingGuess);
+
+                    if (correct)
+                    {
+                        Console.WriteLine($"  ✓ Submitted '{pendingGuess}'.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  ✗ '{pendingGuess}' is not in the word.");
+                    }
+
+                    pendingGuess = string.Empty;
                     break;
             }
 
-            if (command.Action == XboxRoundAction.GuessLetter)
-                selectedLetter = command.Letter;
-
-            var result = _gameService.SubmitGuess(session.Id, command.Letter);
-
-            switch (result.Outcome)
+            if (session.Status != GameStatus.InProgress)
             {
-                case GuessOutcome.AlreadyGuessed:
-                    Console.WriteLine($"  You already guessed '{char.ToUpperInvariant(result.Letter)}'.");
-                    break;
-                case GuessOutcome.Correct:
-                    Console.WriteLine($"  ✓ '{char.ToUpperInvariant(result.Letter)}' is in the word!");
-                    break;
-                case GuessOutcome.Incorrect:
-                    Console.WriteLine($"  ✗ '{char.ToUpperInvariant(result.Letter)}' is not in the word.");
-                    break;
+                _gameService.EndGame(session.Id);
+                break;
             }
 
             Console.WriteLine($"  Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
             Console.WriteLine($"  Guessed: {string.Join(" ", session.GuessedLetters.Order())}");
+            Console.WriteLine($"  Hints left: {(session.CanUseHints ? session.RemainingHints : 0)}");
         }
 
         if (session.Status == GameStatus.Won)
@@ -143,16 +174,13 @@ public class XboxGameHost
             Console.WriteLine($"\n💀 Out of guesses! Better luck next time.");
         }
 
-        // EndGame is called automatically by SubmitGuess once the session is
-        // no longer InProgress, so no explicit call is needed here.
+        // GameService.EndGame is called when the round finishes.
     }
 
-    private static char CycleLetter(char letter, int offset)
+    private static int CycleQwerty(int index, int offset)
     {
-        var normalized = char.ToUpperInvariant(letter);
-        var zeroBased = normalized - 'A';
-        var next = (zeroBased + offset + 26) % 26;
-        return (char)('A' + next);
+        var next = (index + offset + QwertyOrder.Length) % QwertyOrder.Length;
+        return next;
     }
 
     private static T PromptEnum<T>(string prompt) where T : struct, Enum

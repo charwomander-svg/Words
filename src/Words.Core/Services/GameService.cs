@@ -60,9 +60,16 @@ public class GameService : IGameService
     {
         var session = GetSession(sessionId);
         int score = session.CalculateScore();
+
+        if (session.Status == GameStatus.Won)
+            session.Player.AddExperience(CalculateExperience(session.Config.WordLength, session.Config.ConcurrentWords));
+
         session.Player.RecordGameResult(session.Status == GameStatus.Won);
         if (score > 0)
             _scoreService.AwardPoints(session.Player, score);
         _sessions.Remove(sessionId);
     }
+
+    private static int CalculateExperience(int wordLength, int concurrentWords) =>
+        Math.Max(10, wordLength * 10 + Math.Max(0, concurrentWords - 1) * 15);
 }

@@ -69,6 +69,8 @@ public class GameServiceTests
             service.SubmitGuess(session.Id, letter);
 
         Assert.True(player.Score > 0);
+        Assert.True(player.ExperiencePoints > 0);
+        Assert.Equal("Rookie", player.RankTitle);
     }
 
     [Fact]

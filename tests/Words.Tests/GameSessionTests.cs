@@ -77,6 +77,45 @@ public class GameSessionTests
     }
 
     [Fact]
+    public void GuessWord_CorrectWord_RevealsAllLetters()
+    {
+        var session = CreateSession("CAT");
+
+        var correct = session.GuessWord("CAT");
+
+        Assert.True(correct);
+        Assert.Equal("CAT", session.MaskedWord);
+        Assert.Equal(GameStatus.Won, session.Status);
+    }
+
+    [Fact]
+    public void RequestHint_ReturnsLetterAndConsumesLimit()
+    {
+        var session = CreateSession("CAT");
+
+        var hint = session.RequestHint();
+
+        Assert.True(hint.IsAvailable);
+        Assert.Equal(2, session.RemainingHints);
+        Assert.Contains(hint.Letter, "CAT");
+    }
+
+    [Fact]
+    public void CalculateScore_AppliesHintPenalty()
+    {
+        var config = new GameConfig { BasePoints = 100, BonusPerRemainingGuess = 10, MaxIncorrectGuesses = 6, HintPointCost = 25 };
+        var session = new GameSession(
+            new Player("P1"),
+            new Word("CAT", WordCategory.Animals, GameDifficulty.Easy, "hint"),
+            config);
+
+        session.RequestHint();
+        session.Guess('C'); session.Guess('A'); session.Guess('T');
+
+        Assert.Equal(100 + 6 * 10 - 25, session.CalculateScore());
+    }
+
+    [Fact]
     public void CalculateScore_WonGame_ReturnsPositiveScore()
     {
         var config = new GameConfig { BasePoints = 100, BonusPerRemainingGuess = 10, MaxIncorrectGuesses = 6 };

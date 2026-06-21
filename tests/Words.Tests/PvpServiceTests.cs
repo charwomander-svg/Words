@@ -71,6 +71,21 @@ public class PvpServiceTests
         Assert.Equal(PvpMatchStatus.Completed, match.Status);
         Assert.Equal("Alpha", match.Winner?.GamerTag);
         Assert.Equal(1, match.PlayerOneWins);
+        Assert.True(match.PlayerOne.ExperiencePoints > 0);
+    }
+
+    [Fact]
+    public void StartMatch_DisablesHints()
+    {
+        var service = new PvpService(new WordService(new List<Word>
+        {
+            new("GAME", WordCategory.General, GameDifficulty.Medium, "hint")
+        }));
+
+        var match = service.StartMatch(new Player("Alpha"), new Player("Bravo"), 4);
+
+        Assert.False(match.PlayerOneSession.CanUseHints);
+        Assert.Equal("Hints are disabled in this mode.", match.PlayerOneSession.RequestHint().Message);
     }
 
     private sealed class SequencedWordService : IWordService
