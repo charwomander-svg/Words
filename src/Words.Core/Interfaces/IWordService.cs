@@ -23,6 +23,11 @@ public interface IWordService
     string GetRandomWord(int length);
 
     /// <summary>
+    /// Returns unique random dictionary words with the requested length.
+    /// </summary>
+    IReadOnlyList<string> GetRandomWords(int length, int count);
+
+    /// <summary>
     /// Returns all dictionary words with the requested length.
     /// </summary>
     IReadOnlyList<string> GetWordsByLength(int length);

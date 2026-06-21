@@ -22,7 +22,7 @@ public class GameServiceTests
     public void StartGame_ReturnsActiveSession()
     {
         var (service, player) = Setup();
-        var config  = new GameConfig { Category = WordCategory.General, Difficulty = GameDifficulty.Medium };
+        var config  = new GameConfig { WordLength = 6 };
         var session = service.StartGame(player, config);
         Assert.Equal(GameStatus.InProgress, session.Status);
     }
@@ -31,10 +31,27 @@ public class GameServiceTests
     public void SubmitGuess_CorrectLetter_ReturnsCorrectOutcome()
     {
         var (service, player) = Setup();
-        var config  = new GameConfig { Category = WordCategory.General, Difficulty = GameDifficulty.Medium };
+        var config  = new GameConfig { WordLength = 6 };
         var session = service.StartGame(player, config);
         var result  = service.SubmitGuess(session.Id, 'D');
         Assert.Equal(GuessOutcome.Correct, result.Outcome);
+    }
+
+    [Fact]
+    public void StartGame_ConcurrentWords_ReturnsRequestedCount()
+    {
+        var words = new List<Word>
+        {
+            new("DRAGON", WordCategory.General, GameDifficulty.Medium, "Fire-breathing creature"),
+            new("PLANET", WordCategory.General, GameDifficulty.Medium, "A world in space")
+        };
+        var service = new GameService(new WordService(words), new ScoreService());
+        var player = new Player("XboxGamer");
+        var config = new GameConfig { WordLength = 6, ConcurrentWords = 2 };
+        var session = service.StartGame(player, config);
+
+        Assert.Equal(2, session.Words.Count);
+        Assert.Equal(7, session.RemainingGuesses);
     }
 
     [Fact]
@@ -43,8 +60,7 @@ public class GameServiceTests
         var (service, player) = Setup();
         var config = new GameConfig
         {
-            Category = WordCategory.General,
-            Difficulty = GameDifficulty.Medium,
+            WordLength = 6,
             BasePoints = 100,
             BonusPerRemainingGuess = 10
         };

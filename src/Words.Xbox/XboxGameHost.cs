@@ -57,9 +57,9 @@ public class XboxGameHost
 
     private static GameConfig SelectConfig()
     {
-        var difficulty = PromptEnum<GameDifficulty>("Select difficulty (Easy / Medium / Hard): ");
-        var category   = PromptEnum<WordCategory>("Select category (General / Animals / Food / Sports / Science / Geography / Entertainment / Technology): ");
-        return new GameConfig { Difficulty = difficulty, Category = category };
+        var length = PromptInt("Select word length (4-20): ", 4, 20);
+        var concurrentWords = PromptInt("How many concurrent words? (1-100): ", 1, 100);
+        return new GameConfig { WordLength = length, ConcurrentWords = concurrentWords };
     }
 
     private void PlayRound(Player player, GameConfig config)
@@ -76,7 +76,7 @@ public class XboxGameHost
         }
 
         Console.WriteLine($"\nHint: {session.Hint}");
-        Console.WriteLine($"Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
+        Console.WriteLine($"Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
         Console.WriteLine($"Guessed: (none)");
 
         while (session.Status == GameStatus.InProgress)
@@ -105,7 +105,7 @@ public class XboxGameHost
                     break;
             }
 
-            Console.WriteLine($"  Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
+            Console.WriteLine($"  Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
             Console.WriteLine($"  Guessed: {string.Join(" ", session.GuessedLetters.Order())}");
         }
 
@@ -132,6 +132,18 @@ public class XboxGameHost
             if (Enum.TryParse<T>(input, ignoreCase: true, out var value))
                 return value;
             Console.WriteLine($"  Invalid choice. Valid options: {string.Join(", ", Enum.GetNames<T>())}");
+        }
+    }
+
+    private static int PromptInt(string prompt, int min, int max)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            var input = Console.ReadLine()?.Trim();
+            if (int.TryParse(input, out var value) && value >= min && value <= max)
+                return value;
+            Console.WriteLine($"  Invalid choice. Enter a number between {min} and {max}.");
         }
     }
 }

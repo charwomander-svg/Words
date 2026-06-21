@@ -59,4 +59,14 @@ public class WordServiceTests
         Assert.NotEmpty(words);
         Assert.All(words, word => Assert.Equal(8, word.Length));
     }
+
+    [Fact]
+    public void GetRandomWords_ReturnsUniqueRequestedCount()
+    {
+        var service = WordService.FromEmbeddedResource(new Random(0));
+        var words = service.GetRandomWords(5, 3);
+        Assert.Equal(3, words.Count);
+        Assert.Equal(3, words.Distinct().Count());
+        Assert.All(words, word => Assert.Equal(5, word.Length));
+    }
 }

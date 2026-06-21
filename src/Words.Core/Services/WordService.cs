@@ -15,7 +15,7 @@ public class WordService : IWordService
     private readonly Random _random;
 
     public WordService(IReadOnlyList<Word> words, Random? random = null)
-        : this(words, new Dictionary<int, string[]>(), random)
+        : this(words, BuildWordsByLength(words), random)
     {
     }
 
@@ -61,6 +61,13 @@ public class WordService : IWordService
 
         return new WordService(parsed, LoadDictionaryWords(), random);
     }
+
+    private static IReadOnlyDictionary<int, string[]> BuildWordsByLength(IEnumerable<Word> words) =>
+        words
+            .Select(word => word.Text)
+            .Where(text => !string.IsNullOrWhiteSpace(text))
+            .GroupBy(text => text.Length)
+            .ToDictionary(group => group.Key, group => group.ToArray());
 
     private static IReadOnlyDictionary<int, string[]> LoadDictionaryWords()
     {
@@ -109,14 +116,30 @@ public class WordService : IWordService
     /// <inheritdoc/>
     public string GetRandomWord(int length)
     {
+        return GetRandomWords(length, 1)[0];
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<string> GetRandomWords(int length, int count)
+    {
         if (length < 4 || length > 20)
             throw new ArgumentOutOfRangeException(nameof(length), "Word length must be between 4 and 20 letters.");
+
+        if (count < 1 || count > 100)
+            throw new ArgumentOutOfRangeException(nameof(count), "Concurrent words must be between 1 and 100.");
 
         var pool = GetWordsByLength(length);
         if (pool.Count == 0)
             throw new InvalidOperationException($"No words found with length '{length}'.");
 
-        return pool[_random.Next(pool.Count)];
+        if (count > pool.Count)
+            throw new InvalidOperationException(
+                $"Requested {count} words of length {length}, but only {pool.Count} are available.");
+
+        return pool
+            .OrderBy(_ => _random.Next())
+            .Take(count)
+            .ToArray();
     }
 
     /// <inheritdoc/>

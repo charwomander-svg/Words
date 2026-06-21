@@ -9,7 +9,7 @@ public class GameSessionTests
         new GameSession(
             new Player("TestPlayer"),
             new Word(wordText, WordCategory.General, GameDifficulty.Easy, "A hint"),
-            new GameConfig { MaxIncorrectGuesses = 6 }
+            new GameConfig { WordLength = 4, MaxIncorrectGuesses = 6 }
         );
 
     [Fact]
@@ -95,5 +95,55 @@ public class GameSessionTests
         foreach (var l in new[] { 'Z', 'X', 'Q', 'W', 'V', 'U' })
             session.Guess(l);
         Assert.Equal(0, session.CalculateScore());
+    }
+
+    [Fact]
+    public void ConcurrentWords_ExtendGuessBudget()
+    {
+        var session = new GameSession(
+            new Player("P1"),
+            new List<Word>
+            {
+                new("GAME", WordCategory.General, GameDifficulty.Easy, "hint"),
+                new("MAKE", WordCategory.General, GameDifficulty.Easy, "hint")
+            },
+            new GameConfig { WordLength = 4, ConcurrentWords = 2, MaxIncorrectGuesses = 6 }
+        );
+
+        Assert.Equal(7, session.RemainingGuesses);
+    }
+
+    [Fact]
+    public void GameConfig_InvalidWordLength_Throws()
+    {
+        var config = new GameConfig { WordLength = 3 };
+        Assert.Throws<ArgumentOutOfRangeException>(config.Validate);
+    }
+
+    [Fact]
+    public void GameConfig_InvalidConcurrentWords_Throws()
+    {
+        var config = new GameConfig { ConcurrentWords = 101 };
+        Assert.Throws<ArgumentOutOfRangeException>(config.Validate);
+    }
+
+    [Fact]
+    public void Guess_AppliesToAllConcurrentWords()
+    {
+        var session = new GameSession(
+            new Player("P1"),
+            new List<Word>
+            {
+                new("GAME", WordCategory.General, GameDifficulty.Easy, "hint"),
+                new("MAKE", WordCategory.General, GameDifficulty.Easy, "hint")
+            },
+            new GameConfig { WordLength = 4, ConcurrentWords = 2, MaxIncorrectGuesses = 6 }
+        );
+
+        var result = session.Guess('G');
+
+        Assert.Equal(GuessOutcome.Correct, result.Outcome);
+        Assert.Equal("G___", session.MaskedWords[0]);
+        Assert.Equal("____", session.MaskedWords[1]);
     }
 }

@@ -23,9 +23,14 @@ public class GameService : IGameService
     {
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(config);
+        config.Validate();
 
-        var word = _wordService.GetRandomWord(config.Category, config.Difficulty);
-        var session = new GameSession(player, word, config);
+        var words = _wordService
+            .GetRandomWords(config.WordLength, config.ConcurrentWords)
+            .Select(text => new Word(text, WordCategory.General, GameDifficulty.Medium, $"{config.WordLength}-letter word"))
+            .ToList();
+
+        var session = new GameSession(player, words, config);
         _sessions[session.Id] = session;
         return session;
     }
