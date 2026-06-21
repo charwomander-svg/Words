@@ -40,6 +40,8 @@ public class XboxGameHost
 
         Console.WriteLine($"\nThanks for playing, {player.GamerTag}!");
         Console.WriteLine($"Final score: {player.Score}  |  Won {player.GamesWon}/{player.GamesPlayed} games");
+        if (player.UnlockedAchievements.Count > 0)
+            Console.WriteLine($"Achievements: {string.Join(", ", player.UnlockedAchievements)}");
     }
 
     // -------------------------------------------------------------------------
@@ -65,6 +67,7 @@ public class XboxGameHost
 
     private void PlayRound(Player player, GameConfig config)
     {
+        var achievementsBeforeRound = player.UnlockedAchievements.ToHashSet(StringComparer.OrdinalIgnoreCase);
         GameSession session;
         try
         {
@@ -172,6 +175,16 @@ public class XboxGameHost
         else
         {
             Console.WriteLine($"\n💀 Out of guesses! Better luck next time.");
+        }
+
+        var newAchievements = player.UnlockedAchievements
+            .Where(achievement => !achievementsBeforeRound.Contains(achievement))
+            .ToList();
+        if (newAchievements.Count > 0)
+        {
+            Console.WriteLine("🏆 Achievement unlocked:");
+            foreach (var achievement in newAchievements)
+                Console.WriteLine($"  - {achievement}");
         }
 
         // GameService.EndGame is called when the round finishes.

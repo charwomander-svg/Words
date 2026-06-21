@@ -71,6 +71,8 @@ public class GameServiceTests
         Assert.True(player.Score > 0);
         Assert.True(player.ExperiencePoints > 0);
         Assert.Equal("Rookie", player.RankTitle);
+        Assert.Contains("First Win", player.UnlockedAchievements);
+        Assert.Contains("Century Club", player.UnlockedAchievements);
     }
 
     [Fact]

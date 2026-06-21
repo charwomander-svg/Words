@@ -13,6 +13,8 @@ public class Player
         (4, "Arcade music"),
         (5, "Champion border")
     ];
+    private readonly HashSet<string> _unlockedAchievements = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<string> _achievementOrder = [];
 
     public string GamerTag { get; }
     public int Score { get; private set; }
@@ -31,6 +33,7 @@ public class Player
     };
     public IReadOnlyList<string> UnlockedCosmetics =>
         CosmeticUnlocks.Where(unlock => Rank >= unlock.Level).Select(unlock => unlock.Cosmetic).ToArray();
+    public IReadOnlyList<string> UnlockedAchievements => _achievementOrder.AsReadOnly();
 
     public Player(string gamerTag)
     {
@@ -45,6 +48,7 @@ public class Player
         if (points < 0)
             throw new ArgumentOutOfRangeException(nameof(points), "Points must be non-negative.");
         Score += points;
+        UpdateAchievements();
     }
 
     public void AddExperience(int points)
@@ -53,11 +57,31 @@ public class Player
             throw new ArgumentOutOfRangeException(nameof(points), "Experience must be non-negative.");
 
         ExperiencePoints += points;
+        UpdateAchievements();
     }
 
     public void RecordGameResult(bool won)
     {
         GamesPlayed++;
         if (won) GamesWon++;
+        UpdateAchievements();
+    }
+
+    private void UpdateAchievements()
+    {
+        UnlockAchievement("First Win", GamesWon >= 1);
+        UnlockAchievement("Triple Threat", GamesWon >= 3);
+        UnlockAchievement("Century Club", Score >= 100);
+        UnlockAchievement("Arcade Veteran", Score >= 500);
+        UnlockAchievement("Rising Star", Rank >= 3);
+        UnlockAchievement("Legend", Rank >= 5);
+    }
+
+    private void UnlockAchievement(string achievement, bool condition)
+    {
+        if (!condition || !_unlockedAchievements.Add(achievement))
+            return;
+
+        _achievementOrder.Add(achievement);
     }
 }
