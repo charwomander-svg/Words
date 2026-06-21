@@ -90,7 +90,7 @@ public class GameServiceTests
         foreach (var letter in "BLUEPRINTS")
             service.SubmitGuess(session.Id, letter);
 
-        Assert.Contains("No-Hint Ten", player.UnlockedAchievements);
+        Assert.Contains("Perfect Ten", player.UnlockedAchievements);
     }
 
     [Fact]

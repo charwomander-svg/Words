@@ -39,8 +39,8 @@ public class PlayerTests
         player.RecordHeadToHeadWin();
         player.RecordTenLetterWordSolvedWithoutHints();
 
-        Assert.Contains("Backstage Pass", player.UnlockedAchievements);
-        Assert.Contains("Head-to-Head Challenger", player.UnlockedAchievements);
-        Assert.Contains("No-Hint Ten", player.UnlockedAchievements);
+        Assert.Contains("Credits Roll", player.UnlockedAchievements);
+        Assert.Contains("Rivalry Crown", player.UnlockedAchievements);
+        Assert.Contains("Perfect Ten", player.UnlockedAchievements);
     }
 }

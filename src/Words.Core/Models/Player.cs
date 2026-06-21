@@ -96,9 +96,9 @@ public class Player
         UnlockAchievement("Arcade Veteran", Score >= 500);
         UnlockAchievement("Rising Star", Rank >= 3);
         UnlockAchievement("Legend", Rank >= 5);
-        UnlockAchievement("Backstage Pass", _creditsViewed);
-        UnlockAchievement("Head-to-Head Challenger", _firstHeadToHeadWin);
-        UnlockAchievement("No-Hint Ten", _tenLetterWordSolvedWithoutHints);
+        UnlockAchievement("Credits Roll", _creditsViewed);
+        UnlockAchievement("Rivalry Crown", _firstHeadToHeadWin);
+        UnlockAchievement("Perfect Ten", _tenLetterWordSolvedWithoutHints);
     }
 
     private void UnlockAchievement(string achievement, bool condition)
