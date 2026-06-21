@@ -11,6 +11,7 @@ namespace Words.Xbox;
 public class XboxGameHost
 {
     private readonly GameService _gameService;
+    private Player? _player;
 
     public XboxGameHost(GameService gameService)
     {
@@ -24,21 +25,52 @@ public class XboxGameHost
     {
         Console.WriteLine("=== Guess That Word – Xbox Edition ===");
         Console.WriteLine();
+        Console.WriteLine("1. Play");
+        Console.WriteLine("2. Terms of Service");
+        Console.WriteLine("3. Privacy Policy");
+        Console.WriteLine("4. Legal Notice");
+        Console.WriteLine("5. Quit");
+        Console.WriteLine();
 
-        var player = CreatePlayer();
-
-        bool keepPlaying = true;
-        while (keepPlaying)
+        while (true)
         {
-            var config = SelectConfig();
-            PlayRound(player, config);
+            Console.Write("Choose an option: ");
+            var input = Console.ReadLine()?.Trim();
 
-            Console.Write("\nPlay again? (Y/N): ");
-            keepPlaying = Console.ReadLine()?.Trim().Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
+            switch (input)
+            {
+                case "1":
+                    _player ??= CreatePlayer();
+                    PlayRound(_player, SelectConfig());
+                    break;
+                case "2":
+                    ShowPage("Terms of Service", LegalContent.TermsOfService);
+                    break;
+                case "3":
+                    ShowPage("Privacy Policy", LegalContent.PrivacyPolicy);
+                    break;
+                case "4":
+                    ShowPage("Legal Notice", LegalContent.LegalNotice);
+                    break;
+                case "5":
+                case "Q":
+                case "q":
+                    Console.WriteLine();
+                    if (_player is not null)
+                    {
+                        Console.WriteLine($"Thanks for playing, {_player.GamerTag}!");
+                        Console.WriteLine($"Final score: {_player.Score}  |  Won {_player.GamesWon}/{_player.GamesPlayed} games");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Thanks for visiting!");
+                    }
+                    return;
+                default:
+                    Console.WriteLine("Please choose 1, 2, 3, 4, or 5.");
+                    break;
+            }
         }
-
-        Console.WriteLine($"\nThanks for playing, {player.GamerTag}!");
-        Console.WriteLine($"Final score: {player.Score}  |  Won {player.GamesWon}/{player.GamesPlayed} games");
     }
 
     // -------------------------------------------------------------------------
@@ -121,6 +153,23 @@ public class XboxGameHost
 
         // EndGame is called automatically by SubmitGuess once the session is
         // no longer InProgress, so no explicit call is needed here.
+    }
+
+    private static void ShowPage(string title, IReadOnlyList<string> paragraphs)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"=== {title} ===");
+        Console.WriteLine();
+
+        foreach (var paragraph in paragraphs)
+        {
+            Console.WriteLine(paragraph);
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("Press Enter to return to the menu...");
+        Console.ReadLine();
+        Console.WriteLine();
     }
 
     private static T PromptEnum<T>(string prompt) where T : struct, Enum
