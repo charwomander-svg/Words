@@ -68,6 +68,9 @@ public class GameService : IGameService
         if (score > 0)
             _scoreService.AwardPoints(session.Player, score);
 
+        if (session.Status == GameStatus.Won && session.Config.WordLength == 5)
+            session.Player.RecordFiveLetterWordSolvedStartingWith(session.PrimaryWord.Text);
+
         if (session.Status == GameStatus.Won
             && session.Config.WordLength == 10
             && session.HintsUsed == 0)

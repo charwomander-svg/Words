@@ -13,6 +13,8 @@ public class Player
         (4, "Arcade music"),
         (5, "Champion border")
     ];
+    private static readonly string[] FiveLetterWordAchievements =
+        Enumerable.Range('A', 26).Select(letter => $"Starts with {(char)letter}").ToArray();
     private readonly HashSet<string> _unlockedAchievements = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _achievementOrder = [];
     private bool _creditsViewed;
@@ -51,7 +53,6 @@ public class Player
         if (points < 0)
             throw new ArgumentOutOfRangeException(nameof(points), "Points must be non-negative.");
         Score += points;
-        UpdateAchievements();
     }
 
     public void AddExperience(int points)
@@ -60,45 +61,42 @@ public class Player
             throw new ArgumentOutOfRangeException(nameof(points), "Experience must be non-negative.");
 
         ExperiencePoints += points;
-        UpdateAchievements();
     }
 
     public void RecordGameResult(bool won)
     {
         GamesPlayed++;
         if (won) GamesWon++;
-        UpdateAchievements();
     }
 
     public void RecordCreditsViewed()
     {
         _creditsViewed = true;
-        UpdateAchievements();
+        UnlockAchievement("Credits Roll", _creditsViewed);
     }
 
     public void RecordHeadToHeadWin()
     {
         _firstHeadToHeadWin = true;
-        UpdateAchievements();
+        UnlockAchievement("Rivalry Crown", _firstHeadToHeadWin);
     }
 
     public void RecordTenLetterWordSolvedWithoutHints()
     {
         _tenLetterWordSolvedWithoutHints = true;
-        UpdateAchievements();
+        UnlockAchievement("Perfect Ten", _tenLetterWordSolvedWithoutHints);
     }
 
-    private void UpdateAchievements()
+    public void RecordFiveLetterWordSolvedStartingWith(string word)
     {
-        UnlockAchievement("First Win", GamesWon >= 1);
-        UnlockAchievement("Triple Threat", GamesWon >= 3);
-        UnlockAchievement("Century Club", Score >= 100);
-        UnlockAchievement("Arcade Veteran", Score >= 500);
-        UnlockAchievement("Rising Star", Rank >= 3);
-        UnlockAchievement("Legend", Rank >= 5);
-        UnlockAchievement("Credits Roll", _creditsViewed);
-        UnlockAchievement("Rivalry Crown", _firstHeadToHeadWin);
-        UnlockAchievement("Perfect Ten", _tenLetterWordSolvedWithoutHints);
+        if (string.IsNullOrWhiteSpace(word) || word.Length != 5)
+            return;
+
+        var firstLetter = char.ToUpperInvariant(word[0]);
+        if (firstLetter is < 'A' or > 'Z')
+            return;
+
+        UnlockAchievement(FiveLetterWordAchievements[firstLetter - 'A'], true);
     }
 
     private void UnlockAchievement(string achievement, bool condition)

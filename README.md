@@ -10,4 +10,4 @@ For the Xbox game "guess that word"
 - In-round controls: QWERTY navigation with `LEFT/RIGHT`, `A` confirm, `B` delete, `X` submit, `Y` hint, `?` help, `Q` quit round
 - Hint requests are capped at 3 per word and disabled in PvP
 - Player progression tracks XP, rank, and cosmetic unlocks
-- Xbox achievements unlock for first wins, score milestones, and rank milestones
+- Xbox achievements unlock for 5-letter words starting with A-Z plus title update events

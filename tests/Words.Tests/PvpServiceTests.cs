@@ -61,17 +61,18 @@ public class PvpServiceTests
     {
         var service = new PvpService(new WordService(new List<Word>
         {
-            new("GAME", WordCategory.General, GameDifficulty.Medium, "hint")
+            new("GAMES", WordCategory.General, GameDifficulty.Medium, "hint")
         }));
 
-        var match = service.StartMatch(new Player("Alpha"), new Player("Bravo"), 4);
-        foreach (var letter in "GAME")
+        var match = service.StartMatch(new Player("Alpha"), new Player("Bravo"), 5);
+        foreach (var letter in "GAMES")
             service.SubmitGuess(match.Id, "Alpha", letter);
 
         Assert.Equal(PvpMatchStatus.Completed, match.Status);
         Assert.Equal("Alpha", match.Winner?.GamerTag);
         Assert.Equal(1, match.PlayerOneWins);
         Assert.True(match.PlayerOne.ExperiencePoints > 0);
+        Assert.Contains("Starts with G", match.PlayerOne.UnlockedAchievements);
         Assert.Contains("Rivalry Crown", match.PlayerOne.UnlockedAchievements);
     }
 

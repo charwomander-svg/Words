@@ -51,6 +51,9 @@ public class PvpService : IPvpService
             }
             else
             {
+                if (session.Config.WordLength == 5)
+                    session.Player.RecordFiveLetterWordSolvedStartingWith(session.PrimaryWord.Text);
+
                 session.Player.RecordHeadToHeadWin();
 
                 if (session.Config.WordLength == 10 && session.HintsUsed == 0)

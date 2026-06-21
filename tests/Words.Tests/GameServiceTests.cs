@@ -55,24 +55,28 @@ public class GameServiceTests
     }
 
     [Fact]
-    public void EndGame_Won_AwardsScore()
+    public void EndGame_WonFiveLetterWord_UnlocksAlphabetAchievement()
     {
-        var (service, player) = Setup();
+        var words = new List<Word>
+        {
+            new("APPLE", WordCategory.General, GameDifficulty.Medium, "Fruit")
+        };
+        var service = new GameService(new WordService(words), new ScoreService());
+        var player = new Player("XboxGamer");
         var config = new GameConfig
         {
-            WordLength = 6,
+            WordLength = 5,
             BasePoints = 100,
             BonusPerRemainingGuess = 10
         };
         var session = service.StartGame(player, config);
-        foreach (var letter in "DRAGON")
+        foreach (var letter in "APPLE")
             service.SubmitGuess(session.Id, letter);
 
         Assert.True(player.Score > 0);
         Assert.True(player.ExperiencePoints > 0);
         Assert.Equal("Rookie", player.RankTitle);
-        Assert.Contains("First Win", player.UnlockedAchievements);
-        Assert.Contains("Century Club", player.UnlockedAchievements);
+        Assert.Contains("Starts with A", player.UnlockedAchievements);
     }
 
     [Fact]
