@@ -78,19 +78,27 @@ public class XboxGameHost
         Console.WriteLine($"\nHint: {session.Hint}");
         Console.WriteLine($"Word(s): {string.Join(" | ", session.MaskedWords)}  |  Guesses left: {session.RemainingGuesses}");
         Console.WriteLine($"Guessed: (none)");
+        Console.WriteLine(XboxInputScheme.Describe());
 
         while (session.Status == GameStatus.InProgress)
         {
-            Console.Write("\nGuess a letter: ");
-            var input = Console.ReadLine()?.Trim();
+            Console.Write("\nInput: ");
+            var command = XboxInputScheme.ParseRoundCommand(Console.ReadLine());
 
-            if (string.IsNullOrEmpty(input) || input.Length != 1 || !char.IsLetter(input[0]))
+            switch (command.Action)
             {
-                Console.WriteLine("Please enter a single letter.");
-                continue;
+                case XboxRoundAction.Invalid:
+                    Console.WriteLine("Please enter a single letter, ? for help, or Q to quit the round.");
+                    continue;
+                case XboxRoundAction.ShowHelp:
+                    Console.WriteLine(XboxInputScheme.Describe());
+                    continue;
+                case XboxRoundAction.QuitRound:
+                    Console.WriteLine("Round ended early.");
+                    return;
             }
 
-            var result = _gameService.SubmitGuess(session.Id, input[0]);
+            var result = _gameService.SubmitGuess(session.Id, command.Letter);
 
             switch (result.Outcome)
             {
