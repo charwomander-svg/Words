@@ -6,4 +6,4 @@ For the Xbox game "guess that word"
 - Concurrent words: 1-100, default 1
 - Guess budget: 6 base guesses plus 1 per extra word
 - In-memory leaderboard via `ScoreService`
-- PvP match scaffolding for racing the same word
+- PvP match system with head-to-head race-to-N rounds and open-ended play

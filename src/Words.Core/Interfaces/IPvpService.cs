@@ -10,7 +10,7 @@ public interface IPvpService
     /// <summary>
     /// Starts a new PvP match for two players using the same target word length.
     /// </summary>
-    PvpMatch StartMatch(Player playerOne, Player playerTwo, int wordLength);
+    PvpMatch StartMatch(Player playerOne, Player playerTwo, int wordLength, int? targetWins = 1);
 
     /// <summary>
     /// Submits a guess for the named player in the match.
