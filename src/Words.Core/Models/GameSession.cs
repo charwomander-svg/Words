@@ -90,7 +90,7 @@ public class GameSession
         return new GuessResult(
             letter,
             isInWord ? GuessOutcome.Correct : GuessOutcome.Incorrect,
-            masked,
+            MaskedWord,
             solved
         );
     }
