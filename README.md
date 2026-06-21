@@ -13,5 +13,5 @@ For the Xbox game "guess that word"
 - Xbox achievements unlock for 5-letter words starting with A-Z plus title update events
 - The Xbox front end now has a stylized title screen, gameplay HUD, and shared peripheral-page template for credits/tutorial/privacy/legal screens
 - Title/menu content is kept separate from core word logic so the presentation layer can evolve without changing gameplay rules
-- Drop album tracks into `src/Words.Xbox/Audio/Music/` as `title.*`, `round.*`, or `credits.*`
+- Drop album tracks into `src/Words.Xbox/Audio/Music/` as `title.*`, `stage1.*` through `stage7.*`, or `credits.*` — stage tracks are picked at random for rounds
 - Drop sound effects into `src/Words.Xbox/Audio/Sfx/` as `correct.*`, `incorrect.*`, `hint.*`, `achievement.*`, `navigate.*`, `confirm.*`, `delete.*`, `round-start.*`, or `round-end.*`
