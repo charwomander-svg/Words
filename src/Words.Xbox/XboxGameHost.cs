@@ -24,6 +24,9 @@ public class XboxGameHost
     {
         Console.WriteLine("=== Guess That Word – Xbox Edition ===");
         Console.WriteLine();
+        Console.WriteLine("Guess the word one letter at a time.");
+        Console.WriteLine("You can choose a difficulty and category before each round.");
+        Console.WriteLine();
 
         var player = CreatePlayer();
 
@@ -33,8 +36,7 @@ public class XboxGameHost
             var config = SelectConfig();
             PlayRound(player, config);
 
-            Console.Write("\nPlay again? (Y/N): ");
-            keepPlaying = Console.ReadLine()?.Trim().Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
+            keepPlaying = PromptYesNo("\nPlay another round? (Y/N): ");
         }
 
         Console.WriteLine($"\nThanks for playing, {player.GamerTag}!");
@@ -112,15 +114,37 @@ public class XboxGameHost
         if (session.Status == GameStatus.Won)
         {
             int score = session.CalculateScore();
-            Console.WriteLine($"\n🎉 You guessed the word! +{score} points");
+            Console.WriteLine($"\n🎉 You guessed '{session.Answer}'! +{score} points");
         }
         else
         {
-            Console.WriteLine($"\n💀 Out of guesses! Better luck next time.");
+            Console.WriteLine($"\n💀 Out of guesses! The word was '{session.Answer}'.");
         }
+
+        Console.WriteLine($"  Total score: {player.Score}  |  Games won: {player.GamesWon}/{player.GamesPlayed}");
 
         // EndGame is called automatically by SubmitGuess once the session is
         // no longer InProgress, so no explicit call is needed here.
+    }
+
+    private static bool PromptYesNo(string prompt)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            var input = Console.ReadLine()?.Trim();
+
+            if (string.IsNullOrEmpty(input))
+                continue;
+
+            if (input.Equals("Y", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (input.Equals("N", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            Console.WriteLine("  Please enter Y or N.");
+        }
     }
 
     private static T PromptEnum<T>(string prompt) where T : struct, Enum

@@ -17,6 +17,7 @@ public class GameSessionTests
     {
         var session = CreateSession("CAT");
         Assert.Equal("___", session.MaskedWord);
+        Assert.Equal("CAT", session.Answer);
     }
 
     [Fact]

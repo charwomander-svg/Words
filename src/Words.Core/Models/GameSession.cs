@@ -24,6 +24,7 @@ public class GameSession
     public GameStatus Status { get; private set; } = GameStatus.InProgress;
     public int IncorrectGuesses { get; private set; }
     public IReadOnlySet<char> GuessedLetters => _guessedLetters;
+    public string Answer => _word.Text;
     public string Hint => _word.Hint;
 
     /// <summary>
