@@ -30,4 +30,19 @@ public class XboxGameHostTests
         Assert.Contains("HighScore", text);
         Assert.Contains("Thanks for playing, PlayerOne!", text);
     }
+
+    [Fact]
+    public void Run_DemoMode_CompletesRepeatableRound()
+    {
+        using var output = new StringWriter();
+
+        DemoRunner.Run(output);
+
+        var text = output.ToString();
+        Assert.Contains("Hint: A feature-length film shown in cinemas", text);
+        Assert.Contains("🎉 You guessed 'MOVIE'! +160 points", text);
+        Assert.Contains("=== Leaderboard ===", text);
+        Assert.Contains("DemoPlayer", text);
+        Assert.Contains("Thanks for playing, DemoPlayer!", text);
+    }
 }
