@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.WindowsDesktop.AppPackaging">
+  <PropertyGroup>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <Platform>x64</Platform>
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <AppxBundle>Never</AppxBundle>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <AppxPackageDir>$(OutputPath)AppPackages\</AppxPackageDir>
+    <ApplicationManifest>Package.appxmanifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Words.Xbox\Words.Xbox.csproj" />
+    <Content Include="Assets\**\*" />
+  </ItemGroup>
+</Project>
