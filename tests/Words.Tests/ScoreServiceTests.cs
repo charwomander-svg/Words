@@ -44,4 +44,30 @@ public class ScoreServiceTests
         var player  = new Player("Gamer1");
         Assert.Throws<ArgumentOutOfRangeException>(() => service.AwardPoints(player, -1));
     }
+
+    [Fact]
+    public void AwardPoints_WithStoragePath_PersistsLeaderboard()
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            var service = new ScoreService(path);
+            var player = new Player("PersistentPlayer");
+
+            service.AwardPoints(player, 125);
+
+            var reloaded = new ScoreService(path);
+            var leaderboard = reloaded.GetLeaderboard();
+
+            Assert.Single(leaderboard);
+            Assert.Equal("PersistentPlayer", leaderboard[0].GamerTag);
+            Assert.Equal(125, leaderboard[0].Score);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
 }

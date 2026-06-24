@@ -1,5 +1,6 @@
 using Words.Core.Models;
 using Words.Core.Services;
+using Words.Core.Interfaces;
 
 namespace Words.Xbox;
 
@@ -11,10 +12,16 @@ namespace Words.Xbox;
 public class XboxGameHost
 {
     private readonly GameService _gameService;
+    private readonly IScoreService _scoreService;
+    private readonly TextReader _input;
+    private readonly TextWriter _output;
 
-    public XboxGameHost(GameService gameService)
+    public XboxGameHost(GameService gameService, IScoreService scoreService, TextReader? input = null, TextWriter? output = null)
     {
         _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
+        _scoreService = scoreService ?? throw new ArgumentNullException(nameof(scoreService));
+        _input = input ?? Console.In;
+        _output = output ?? Console.Out;
     }
 
     /// <summary>
@@ -22,40 +29,59 @@ public class XboxGameHost
     /// </summary>
     public void Run()
     {
-        Console.WriteLine("=== Guess That Word – Xbox Edition ===");
-        Console.WriteLine();
+        WriteBanner();
 
         var player = CreatePlayer();
 
-        bool keepPlaying = true;
-        while (keepPlaying)
+        bool quit = false;
+        while (!quit)
         {
-            var config = SelectConfig();
-            PlayRound(player, config);
-
-            Console.Write("\nPlay again? (Y/N): ");
-            keepPlaying = Console.ReadLine()?.Trim().Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
+            switch (PromptEnum<MainMenuChoice>($"\nCurrent player: {player.GamerTag}  |  Score: {player.Score}\n" +
+                                               "1) Play a round\n" +
+                                               "2) View leaderboard\n" +
+                                               "3) Quit\n" +
+                                               "Choose an option: "))
+            {
+                case MainMenuChoice.Play:
+                    var config = SelectConfig();
+                    PlayRound(player, config);
+                    break;
+                case MainMenuChoice.Leaderboard:
+                    ShowLeaderboard();
+                    break;
+                case MainMenuChoice.Quit:
+                    quit = true;
+                    break;
+            }
         }
 
-        Console.WriteLine($"\nThanks for playing, {player.GamerTag}!");
-        Console.WriteLine($"Final score: {player.Score}  |  Won {player.GamesWon}/{player.GamesPlayed} games");
+        _output.WriteLine($"\nThanks for playing, {player.GamerTag}!");
+        _output.WriteLine($"Final score: {player.Score}  |  Won {player.GamesWon}/{player.GamesPlayed} games");
     }
 
     // -------------------------------------------------------------------------
 
-    private static Player CreatePlayer()
+    private void WriteBanner()
     {
-        Console.Write("Enter your GamerTag: ");
-        var tag = Console.ReadLine()?.Trim();
+        _output.WriteLine("=== Guess That Word – Xbox Edition ===");
+        _output.WriteLine();
+        _output.WriteLine("Guess the word one letter at a time.");
+        _output.WriteLine("You can choose a difficulty and category before each round.");
+    }
+
+    private Player CreatePlayer()
+    {
+        _output.Write("Enter your GamerTag: ");
+        var tag = _input.ReadLine()?.Trim();
         while (string.IsNullOrWhiteSpace(tag))
         {
-            Console.Write("GamerTag cannot be empty. Try again: ");
-            tag = Console.ReadLine()?.Trim();
+            _output.Write("GamerTag cannot be empty. Try again: ");
+            tag = _input.ReadLine()?.Trim();
         }
         return new Player(tag);
     }
 
-    private static GameConfig SelectConfig()
+    private GameConfig SelectConfig()
     {
         var difficulty = PromptEnum<GameDifficulty>("Select difficulty (Easy / Medium / Hard): ");
         var category   = PromptEnum<WordCategory>("Select category (General / Animals / Food / Sports / Science / Geography / Entertainment / Technology): ");
@@ -71,22 +97,22 @@ public class XboxGameHost
         }
         catch (InvalidOperationException ex)
         {
-            Console.WriteLine($"[Error] {ex.Message}");
+            _output.WriteLine($"[Error] {ex.Message}");
             return;
         }
 
-        Console.WriteLine($"\nHint: {session.Hint}");
-        Console.WriteLine($"Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
-        Console.WriteLine($"Guessed: (none)");
+        _output.WriteLine($"\nHint: {session.Hint}");
+        _output.WriteLine($"Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
+        _output.WriteLine($"Guessed: (none)");
 
         while (session.Status == GameStatus.InProgress)
         {
-            Console.Write("\nGuess a letter: ");
-            var input = Console.ReadLine()?.Trim();
+            _output.Write("\nGuess a letter: ");
+            var input = _input.ReadLine()?.Trim();
 
             if (string.IsNullOrEmpty(input) || input.Length != 1 || !char.IsLetter(input[0]))
             {
-                Console.WriteLine("Please enter a single letter.");
+                _output.WriteLine("Please enter a single letter.");
                 continue;
             }
 
@@ -95,43 +121,70 @@ public class XboxGameHost
             switch (result.Outcome)
             {
                 case GuessOutcome.AlreadyGuessed:
-                    Console.WriteLine($"  You already guessed '{char.ToUpperInvariant(result.Letter)}'.");
+                    _output.WriteLine($"  You already guessed '{char.ToUpperInvariant(result.Letter)}'.");
                     break;
                 case GuessOutcome.Correct:
-                    Console.WriteLine($"  ✓ '{char.ToUpperInvariant(result.Letter)}' is in the word!");
+                    _output.WriteLine($"  ✓ '{char.ToUpperInvariant(result.Letter)}' is in the word!");
                     break;
                 case GuessOutcome.Incorrect:
-                    Console.WriteLine($"  ✗ '{char.ToUpperInvariant(result.Letter)}' is not in the word.");
+                    _output.WriteLine($"  ✗ '{char.ToUpperInvariant(result.Letter)}' is not in the word.");
                     break;
             }
 
-            Console.WriteLine($"  Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
-            Console.WriteLine($"  Guessed: {string.Join(" ", session.GuessedLetters.Order())}");
+            _output.WriteLine($"  Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
+            _output.WriteLine($"  Guessed: {string.Join(" ", session.GuessedLetters.Order())}");
         }
 
         if (session.Status == GameStatus.Won)
         {
             int score = session.CalculateScore();
-            Console.WriteLine($"\n🎉 You guessed the word! +{score} points");
+            _output.WriteLine($"\n🎉 You guessed '{session.Answer}'! +{score} points");
         }
         else
         {
-            Console.WriteLine($"\n💀 Out of guesses! Better luck next time.");
+            _output.WriteLine($"\n💀 Out of guesses! The word was '{session.Answer}'.");
         }
+
+        _output.WriteLine($"  Total score: {player.Score}  |  Games won: {player.GamesWon}/{player.GamesPlayed}");
 
         // EndGame is called automatically by SubmitGuess once the session is
         // no longer InProgress, so no explicit call is needed here.
     }
 
-    private static T PromptEnum<T>(string prompt) where T : struct, Enum
+    private void ShowLeaderboard()
+    {
+        var leaderboard = _scoreService.GetLeaderboard();
+        _output.WriteLine("\n=== Leaderboard ===");
+
+        if (leaderboard.Count == 0)
+        {
+            _output.WriteLine("No scores yet.");
+            return;
+        }
+
+        for (int index = 0; index < Math.Min(leaderboard.Count, 5); index++)
+        {
+            var player = leaderboard[index];
+            _output.WriteLine($"{index + 1}. {player.GamerTag,-16} {player.Score,4}");
+        }
+    }
+
+    private T PromptEnum<T>(string prompt) where T : struct, Enum
     {
         while (true)
         {
-            Console.Write(prompt);
-            var input = Console.ReadLine()?.Trim() ?? string.Empty;
+            _output.Write(prompt);
+            var input = _input.ReadLine()?.Trim() ?? string.Empty;
             if (Enum.TryParse<T>(input, ignoreCase: true, out var value))
                 return value;
-            Console.WriteLine($"  Invalid choice. Valid options: {string.Join(", ", Enum.GetNames<T>())}");
+            _output.WriteLine($"  Invalid choice. Valid options: {string.Join(", ", Enum.GetNames<T>())}");
         }
+    }
+
+    private enum MainMenuChoice
+    {
+        Play = 1,
+        Leaderboard = 2,
+        Quit = 3
     }
 }

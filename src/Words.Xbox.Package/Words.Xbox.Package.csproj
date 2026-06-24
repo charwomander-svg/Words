@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Platform>x64</Platform>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <AppxBundle>Never</AppxBundle>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <AppxPackageDir>$(OutputPath)AppPackages\</AppxPackageDir>
+    <ApplicationManifest>Package.appxmanifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Words.Xbox\Words.Xbox.csproj" />
+    <Content Include="Assets\**\*" />
+  </ItemGroup>
+</Project>
