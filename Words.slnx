@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Words.Core/Words.Core.csproj" />
+    <Project Path="src/Words.Xbox.Package/Words.Xbox.Package.csproj" />
     <Project Path="src/Words.Xbox/Words.Xbox.csproj" />
   </Folder>
   <Folder Name="/tests/">
