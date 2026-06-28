@@ -1,6 +1,7 @@
 # Words
 For the Xbox game "guess that word" 
-Run a repeatable demo with `dotnet run --project src/Words.Xbox/Words.Xbox.csproj -- --demo`.
+Run the repeatable demo tour with `dotnet run --project src/Words.Xbox/Words.Xbox.csproj -- --demo`.
+It uses curated words and an isolated demo leaderboard, so it does not touch your normal save data.
 
 ## Xbox package
 
