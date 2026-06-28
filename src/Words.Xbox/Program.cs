@@ -23,16 +23,47 @@ public static class DemoRunner
 {
     public static void Run(TextWriter? output = null)
     {
+        output ??= Console.Out;
+
         var wordService = new WordService(new[]
         {
-            new Word("MOVIE", WordCategory.Entertainment, GameDifficulty.Easy, "A feature-length film shown in cinemas")
+            new Word("MOVIE", WordCategory.Entertainment, GameDifficulty.Easy, "A feature-length film shown in cinemas"),
+            new Word("DRAGON", WordCategory.General, GameDifficulty.Medium, "Fire-breathing creature")
         });
-        var scoreService = new ScoreService();
-        var gameService = new GameService(wordService, scoreService);
 
-        using var input = new StringReader(BuildScript());
-        var host = new XboxGameHost(gameService, scoreService, input, output);
-        host.Run();
+        var demoStorageDirectory = Path.Combine(Path.GetTempPath(), "Words-Demo");
+        Directory.CreateDirectory(demoStorageDirectory);
+
+        var demoStoragePath = Path.Combine(demoStorageDirectory, $"leaderboard-{Guid.NewGuid():N}.json");
+
+        output.WriteLine("=== Demo Tour ===");
+        output.WriteLine("A short, scripted playthrough of Guess That Word.");
+        output.WriteLine("It uses curated words and an isolated demo leaderboard.");
+        output.WriteLine();
+
+        try
+        {
+            var scoreService = new ScoreService(demoStoragePath);
+            var gameService = new GameService(wordService, scoreService);
+
+            using var input = new StringReader(BuildScript());
+            var host = new XboxGameHost(gameService, scoreService, input, output);
+            host.Run();
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(demoStoragePath))
+                    File.Delete(demoStoragePath);
+
+                if (Directory.Exists(demoStorageDirectory) && !Directory.EnumerateFileSystemEntries(demoStorageDirectory).Any())
+                    Directory.Delete(demoStorageDirectory);
+            }
+            catch
+            {
+            }
+        }
     }
 
     private static string BuildScript() =>
@@ -47,6 +78,15 @@ public static class DemoRunner
             "v",
             "i",
             "e",
+            "Play",
+            "Medium",
+            "General",
+            "q",
+            "w",
+            "x",
+            "y",
+            "z",
+            "k",
             "Leaderboard",
             "Quit"
         }) + Environment.NewLine;
