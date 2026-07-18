@@ -141,4 +141,43 @@ public class GameSessionTests
 
         Assert.Equal(230, session.CalculateScore());
     }
+
+    [Fact]
+    public void GuessWord_CorrectWord_SetsStatusWonAndRevealsWord()
+    {
+        var session = CreateSession("CAT");
+
+        var result = session.GuessWord("cat");
+
+        Assert.Equal(WordGuessOutcome.Correct, result.Outcome);
+        Assert.True(result.IsWordSolved);
+        Assert.Equal("CAT", result.MaskedWord);
+        Assert.Equal(GameStatus.Won, session.Status);
+    }
+
+    [Fact]
+    public void GuessWord_IncorrectWord_UsesOneGuess()
+    {
+        var session = CreateSession("CAT");
+
+        var result = session.GuessWord("dog");
+
+        Assert.Equal(WordGuessOutcome.Incorrect, result.Outcome);
+        Assert.Equal("DOG", result.Guess);
+        Assert.Equal(1, session.IncorrectGuesses);
+        Assert.Equal(GameStatus.InProgress, session.Status);
+    }
+
+    [Fact]
+    public void GuessWord_MaxIncorrectGuesses_SetsStatusLost()
+    {
+        var session = new GameSession(
+            new Player("P1"),
+            new Word("CAT", WordCategory.Animals, GameDifficulty.Easy, "hint"),
+            new GameConfig { MaxIncorrectGuesses = 1 });
+
+        session.GuessWord("dog");
+
+        Assert.Equal(GameStatus.Lost, session.Status);
+    }
 }

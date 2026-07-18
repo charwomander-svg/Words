@@ -38,6 +38,20 @@ public class GameServiceTests
     }
 
     [Fact]
+    public void SubmitWordGuess_CorrectWord_AwardsScoreAndEndsSession()
+    {
+        var (service, player) = Setup();
+        var config = new GameConfig { Category = WordCategory.General, Difficulty = GameDifficulty.Medium };
+        var session = service.StartGame(player, config);
+
+        var result = service.SubmitWordGuess(session.Id, "dragon");
+
+        Assert.Equal(WordGuessOutcome.Correct, result.Outcome);
+        Assert.True(player.Score > 0);
+        Assert.Throws<KeyNotFoundException>(() => service.GetSession(session.Id));
+    }
+
+    [Fact]
     public void EndGame_Won_AwardsScore()
     {
         var (service, player) = Setup();

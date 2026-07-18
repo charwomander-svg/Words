@@ -18,6 +18,11 @@ public interface IGameService
     GuessResult SubmitGuess(Guid sessionId, char letter);
 
     /// <summary>
+    /// Processes a full-word guess for an existing session.
+    /// </summary>
+    WordGuessResult SubmitWordGuess(Guid sessionId, string guess);
+
+    /// <summary>
     /// Returns the current state of a session.
     /// </summary>
     GameSession GetSession(Guid sessionId);

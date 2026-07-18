@@ -108,28 +108,39 @@ public class XboxGameHost
 
         while (session.Status == GameStatus.InProgress)
         {
-            _output.Write("\nGuess a letter: ");
+            _output.Write("\nGuess a letter or the whole word: ");
             var input = _input.ReadLine()?.Trim();
 
-            if (string.IsNullOrEmpty(input) || input.Length != 1 || !char.IsLetter(input[0]))
+            if (string.IsNullOrEmpty(input) || input.Any(c => !char.IsLetter(c)))
             {
-                _output.WriteLine("Please enter a single letter.");
+                _output.WriteLine("Please enter letters only.");
                 continue;
             }
 
-            var result = _gameService.SubmitGuess(session.Id, input[0]);
-
-            switch (result.Outcome)
+            if (input.Length == 1)
             {
-                case GuessOutcome.AlreadyGuessed:
-                    _output.WriteLine($"  You already guessed '{char.ToUpperInvariant(result.Letter)}'.");
-                    break;
-                case GuessOutcome.Correct:
-                    _output.WriteLine($"  ✓ '{char.ToUpperInvariant(result.Letter)}' is in the word!");
-                    break;
-                case GuessOutcome.Incorrect:
-                    _output.WriteLine($"  ✗ '{char.ToUpperInvariant(result.Letter)}' is not in the word.");
-                    break;
+                var result = _gameService.SubmitGuess(session.Id, input[0]);
+
+                switch (result.Outcome)
+                {
+                    case GuessOutcome.AlreadyGuessed:
+                        _output.WriteLine($"  You already guessed '{char.ToUpperInvariant(result.Letter)}'.");
+                        break;
+                    case GuessOutcome.Correct:
+                        _output.WriteLine($"  ✓ '{char.ToUpperInvariant(result.Letter)}' is in the word!");
+                        break;
+                    case GuessOutcome.Incorrect:
+                        _output.WriteLine($"  ✗ '{char.ToUpperInvariant(result.Letter)}' is not in the word.");
+                        break;
+                }
+            }
+            else
+            {
+                var result = _gameService.SubmitWordGuess(session.Id, input);
+                if (result.Outcome == WordGuessOutcome.Correct)
+                    _output.WriteLine($"  ✓ '{result.Guess}' is the word!");
+                else
+                    _output.WriteLine($"  ✗ '{result.Guess}' is not the word.");
             }
 
             _output.WriteLine($"  Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");

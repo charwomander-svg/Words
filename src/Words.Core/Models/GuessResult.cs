@@ -24,3 +24,26 @@ public record GuessResult(
     string MaskedWord,
     bool IsWordSolved
 );
+
+/// <summary>
+/// The outcome of a full-word guess.
+/// </summary>
+public enum WordGuessOutcome
+{
+    /// <summary>The submitted word exactly matches the answer.</summary>
+    Correct,
+    /// <summary>The submitted word does not match the answer.</summary>
+    Incorrect,
+    /// <summary>The game is already over.</summary>
+    GameOver
+}
+
+/// <summary>
+/// Result returned after a player guesses the full word.
+/// </summary>
+public record WordGuessResult(
+    string Guess,
+    WordGuessOutcome Outcome,
+    string MaskedWord,
+    bool IsWordSolved
+);

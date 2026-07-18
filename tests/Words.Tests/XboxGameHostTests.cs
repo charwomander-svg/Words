@@ -42,10 +42,32 @@ public class XboxGameHostTests
         Assert.Contains("=== Demo Tour ===", text);
         Assert.Contains("A short, scripted playthrough of Guess That Word.", text);
         Assert.Contains("Mode: Classic  |  Hint: A feature-length film shown in cinemas", text);
+        Assert.Contains("✓ 'MOVIE' is the word!", text);
         Assert.Contains("🎉 You guessed 'MOVIE'! +160 points", text);
         Assert.Contains("💀 Out of guesses! The word was 'DRAGON'.", text);
         Assert.Contains("=== Leaderboard ===", text);
         Assert.Contains("DemoPlayer", text);
         Assert.Contains("Thanks for playing, DemoPlayer!", text);
+    }
+
+    [Fact]
+    public void Run_WordGuess_AllowsWholeWordWin()
+    {
+        var scoreService = new ScoreService();
+        var wordService = new WordService(new[]
+        {
+            new Word("DRAGON", WordCategory.General, GameDifficulty.Medium, "Fire-breathing creature")
+        });
+        var gameService = new GameService(wordService, scoreService);
+
+        using var input = new StringReader("PlayerOne\n1\nClassic\nMedium\nGeneral\ndragon\n3\n");
+        using var output = new StringWriter();
+        var host = new XboxGameHost(gameService, scoreService, input, output);
+
+        host.Run();
+
+        var text = output.ToString();
+        Assert.Contains("✓ 'DRAGON' is the word!", text);
+        Assert.Contains("🎉 You guessed 'DRAGON'!", text);
     }
 }

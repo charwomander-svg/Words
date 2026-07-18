@@ -1,5 +1,8 @@
 # Words
-For the Xbox game "guess that word" 
+For the Xbox game "guess that word"
+
+Players can guess one letter at a time or enter the full word when they are ready. A wrong full-word guess costs one guess.
+
 Run the repeatable demo tour with `dotnet run --project src/Words.Xbox/Words.Xbox.csproj -- --demo`.
 It uses curated words and an isolated demo leaderboard, so it does not touch your normal save data.
 
