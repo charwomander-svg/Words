@@ -33,7 +33,7 @@ public class GameSession
     public string MaskedWord =>
         new(_word.Text.Select(c => _guessedLetters.Contains(c) ? c : '_').ToArray());
 
-    public int RemainingGuesses => Config.MaxIncorrectGuesses - IncorrectGuesses;
+    public int RemainingGuesses => Config.EffectiveMaxIncorrectGuesses - IncorrectGuesses;
 
     public GameSession(Player player, Word word, GameConfig config)
     {
@@ -67,7 +67,7 @@ public class GameSession
 
         if (solved)
             Status = GameStatus.Won;
-        else if (IncorrectGuesses >= Config.MaxIncorrectGuesses)
+        else if (IncorrectGuesses >= Config.EffectiveMaxIncorrectGuesses)
             Status = GameStatus.Lost;
 
         return new GuessResult(
@@ -83,6 +83,6 @@ public class GameSession
     /// </summary>
     public int CalculateScore() =>
         Status == GameStatus.Won
-            ? Config.BasePoints + RemainingGuesses * Config.BonusPerRemainingGuess
+            ? Config.EffectiveBasePoints + RemainingGuesses * Config.EffectiveBonusPerRemainingGuess
             : 0;
 }

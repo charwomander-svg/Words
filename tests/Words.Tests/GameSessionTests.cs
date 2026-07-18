@@ -97,4 +97,48 @@ public class GameSessionTests
             session.Guess(l);
         Assert.Equal(0, session.CalculateScore());
     }
+
+    [Fact]
+    public void RelaxedMode_AddsExtraGuessesAndReducesScoring()
+    {
+        var config = new GameConfig
+        {
+            Mode = GameMode.Relaxed,
+            BasePoints = 100,
+            BonusPerRemainingGuess = 10,
+            MaxIncorrectGuesses = 6
+        };
+        var session = new GameSession(
+            new Player("P1"),
+            new Word("CAT", WordCategory.Animals, GameDifficulty.Easy, "hint"),
+            config);
+
+        Assert.Equal(9, session.RemainingGuesses);
+
+        session.Guess('C'); session.Guess('A'); session.Guess('T');
+
+        Assert.Equal(95, session.CalculateScore());
+    }
+
+    [Fact]
+    public void ChallengeMode_ReducesGuessesAndIncreasesScoring()
+    {
+        var config = new GameConfig
+        {
+            Mode = GameMode.Challenge,
+            BasePoints = 100,
+            BonusPerRemainingGuess = 10,
+            MaxIncorrectGuesses = 6
+        };
+        var session = new GameSession(
+            new Player("P1"),
+            new Word("CAT", WordCategory.Animals, GameDifficulty.Easy, "hint"),
+            config);
+
+        Assert.Equal(4, session.RemainingGuesses);
+
+        session.Guess('C'); session.Guess('A'); session.Guess('T');
+
+        Assert.Equal(230, session.CalculateScore());
+    }
 }

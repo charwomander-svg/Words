@@ -71,6 +71,7 @@ public static class DemoRunner
         {
             "DemoPlayer",
             "Play",
+            "Classic",
             "Easy",
             "Entertainment",
             "m",
@@ -79,6 +80,7 @@ public static class DemoRunner
             "i",
             "e",
             "Play",
+            "Challenge",
             "Medium",
             "General",
             "q",

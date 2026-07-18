@@ -66,7 +66,7 @@ public class XboxGameHost
         _output.WriteLine("=== Guess That Word – Xbox Edition ===");
         _output.WriteLine();
         _output.WriteLine("Guess the word one letter at a time.");
-        _output.WriteLine("You can choose a difficulty and category before each round.");
+        _output.WriteLine("You can choose a mode, difficulty, and category before each round.");
     }
 
     private Player CreatePlayer()
@@ -83,9 +83,10 @@ public class XboxGameHost
 
     private GameConfig SelectConfig()
     {
+        var mode = PromptEnum<GameMode>("Select mode (Classic / Relaxed / Challenge): ");
         var difficulty = PromptEnum<GameDifficulty>("Select difficulty (Easy / Medium / Hard): ");
         var category   = PromptEnum<WordCategory>("Select category (General / Animals / Food / Sports / Science / Geography / Entertainment / Technology): ");
-        return new GameConfig { Difficulty = difficulty, Category = category };
+        return new GameConfig { Mode = mode, Difficulty = difficulty, Category = category };
     }
 
     private void PlayRound(Player player, GameConfig config)
@@ -101,7 +102,7 @@ public class XboxGameHost
             return;
         }
 
-        _output.WriteLine($"\nHint: {session.Hint}");
+        _output.WriteLine($"\nMode: {session.Config.Mode}  |  Hint: {session.Hint}");
         _output.WriteLine($"Word: {session.MaskedWord}  |  Guesses left: {session.RemainingGuesses}");
         _output.WriteLine($"Guessed: (none)");
 
