@@ -42,4 +42,16 @@ public class WordServiceTests
         var service = WordService.FromEmbeddedResource();
         Assert.NotEmpty(service.GetAllWords());
     }
+
+    [Fact]
+    public void Word_Constructor_NormalizesAndValidatesFields()
+    {
+        var word = new Word(" cat ", WordCategory.Animals, GameDifficulty.Easy, " Common pet ");
+
+        Assert.Equal("CAT", word.Text);
+        Assert.Equal("Common pet", word.Hint);
+        Assert.Throws<ArgumentException>(() => new Word("", WordCategory.Animals, GameDifficulty.Easy, "hint"));
+        Assert.Throws<ArgumentException>(() => new Word("c4t", WordCategory.Animals, GameDifficulty.Easy, "hint"));
+        Assert.Throws<ArgumentException>(() => new Word("cat", WordCategory.Animals, GameDifficulty.Easy, ""));
+    }
 }

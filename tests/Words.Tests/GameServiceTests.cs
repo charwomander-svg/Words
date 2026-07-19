@@ -72,4 +72,20 @@ public class GameServiceTests
         var (service, _) = Setup();
         Assert.Throws<KeyNotFoundException>(() => service.GetSession(Guid.NewGuid()));
     }
+
+    [Fact]
+    public void GetSessionState_ReturnsCurrentSnapshot()
+    {
+        var (service, player) = Setup();
+        var config = new GameConfig { Category = WordCategory.General, Difficulty = GameDifficulty.Medium };
+        var session = service.StartGame(player, config);
+
+        service.SubmitGuess(session.Id, 'D');
+
+        var state = service.GetSessionState(session.Id);
+        Assert.Equal(session.Id, state.Id);
+        Assert.Equal("XboxGamer", state.GamerTag);
+        Assert.Equal("D_____", state.MaskedWord);
+        Assert.Equal(new[] { 'D' }, state.GuessedLetters);
+    }
 }

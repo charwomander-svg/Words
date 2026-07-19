@@ -70,4 +70,21 @@ public class ScoreServiceTests
                 File.Delete(path);
         }
     }
+
+    [Fact]
+    public void AwardPoints_SameGamerTag_CombinesLeaderboardScore()
+    {
+        var service = new ScoreService();
+        var first = new Player("Gamer1");
+        var second = new Player(" gamer1 ");
+
+        service.AwardPoints(first, 100);
+        service.AwardPoints(second, 50);
+
+        var leaderboard = service.GetLeaderboard();
+        Assert.Single(leaderboard);
+        Assert.Equal("Gamer1", leaderboard[0].GamerTag);
+        Assert.Equal(150, leaderboard[0].Score);
+        Assert.Equal(50, second.Score);
+    }
 }

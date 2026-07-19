@@ -39,6 +39,13 @@ public class GameSessionTests
     }
 
     [Fact]
+    public void Guess_NonLetter_Throws()
+    {
+        var session = CreateSession("CAT");
+        Assert.Throws<ArgumentException>(() => session.Guess('1'));
+    }
+
+    [Fact]
     public void Guess_DuplicateLetter_ReturnsAlreadyGuessed()
     {
         var session = CreateSession("CAT");
@@ -82,6 +89,16 @@ public class GameSessionTests
     }
 
     [Fact]
+    public void GuessWord_EmptyOrNonLetters_Throws()
+    {
+        var session = CreateSession("CAT");
+
+        Assert.Throws<ArgumentException>(() => session.GuessWord(""));
+        Assert.Throws<ArgumentException>(() => session.GuessWord("c4t"));
+        Assert.Equal(0, session.IncorrectGuesses);
+    }
+
+    [Fact]
     public void Guess_MaxIncorrectGuesses_SetsStatusLost()
     {
         var session = CreateSession("CAT");
@@ -118,5 +135,22 @@ public class GameSessionTests
         foreach (var l in new[] { 'Z', 'X', 'Q', 'W', 'V', 'U' })
             session.Guess(l);
         Assert.Equal(0, session.CalculateScore());
+    }
+
+    [Fact]
+    public void ToState_ReturnsImmutableUiSnapshot()
+    {
+        var session = CreateSession("CAT");
+        session.Guess('T');
+        session.Guess('C');
+
+        var state = session.ToState();
+
+        Assert.Equal(session.Id, state.Id);
+        Assert.Equal("TestPlayer", state.GamerTag);
+        Assert.Equal(GameStatus.InProgress, state.Status);
+        Assert.Equal("C_T", state.MaskedWord);
+        Assert.Equal(new[] { 'C', 'T' }, state.GuessedLetters);
+        Assert.Equal("A hint", state.Hint);
     }
 }

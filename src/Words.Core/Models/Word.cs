@@ -14,12 +14,13 @@ public sealed record Word
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Word text cannot be empty.", nameof(text));
+        text = text.Trim();
         if (!text.All(char.IsLetter))
             throw new ArgumentException("Word text must contain letters only.", nameof(text));
         if (string.IsNullOrWhiteSpace(hint))
             throw new ArgumentException("Hint cannot be empty.", nameof(hint));
 
-        Text = text.Trim().ToUpperInvariant();
+        Text = text.ToUpperInvariant();
         Category = category;
         Difficulty = difficulty;
         Hint = hint.Trim();
