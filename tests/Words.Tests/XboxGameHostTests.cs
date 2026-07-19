@@ -41,6 +41,7 @@ public class XboxGameHostTests
         var text = output.ToString();
         Assert.Contains("=== Demo Tour ===", text);
         Assert.Contains("A short, scripted playthrough of Guess That Word.", text);
+        Assert.Contains("Tour path: win MOVIE, lose DRAGON, view the leaderboard, then quit.", text);
         Assert.Contains("Enter your GamerTag: DemoPlayer", text);
         Assert.Contains("Choose an option: Play", text);
         Assert.Contains("Select difficulty (Easy / Medium / Hard): Easy", text);
@@ -53,5 +54,7 @@ public class XboxGameHostTests
         Assert.Contains("=== Leaderboard ===", text);
         Assert.Contains("DemoPlayer", text);
         Assert.Contains("Thanks for playing, DemoPlayer!", text);
+        Assert.Contains("=== Demo Tour Complete ===", text);
+        Assert.Contains("Replay with --demo any time to see the same isolated tour.", text);
     }
 }

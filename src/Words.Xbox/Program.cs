@@ -39,6 +39,7 @@ public static class DemoRunner
         output.WriteLine("=== Demo Tour ===");
         output.WriteLine("A short, scripted playthrough of Guess That Word.");
         output.WriteLine("It uses curated words and an isolated demo leaderboard.");
+        output.WriteLine("Tour path: win MOVIE, lose DRAGON, view the leaderboard, then quit.");
         output.WriteLine();
 
         try
@@ -49,6 +50,10 @@ public static class DemoRunner
             using var input = new DemoScriptReader(BuildScript(), output);
             var host = new XboxGameHost(gameService, scoreService, input, output);
             host.Run();
+
+            output.WriteLine();
+            output.WriteLine("=== Demo Tour Complete ===");
+            output.WriteLine("Replay with --demo any time to see the same isolated tour.");
         }
         finally
         {
