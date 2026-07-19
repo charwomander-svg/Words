@@ -39,7 +39,7 @@ public static class DemoRunner
         output.WriteLine("=== Demo Tour ===");
         output.WriteLine("A short, scripted playthrough of Guess That Word.");
         output.WriteLine("It uses curated words and an isolated demo leaderboard.");
-        output.WriteLine("Tour path: win MOVIE, lose DRAGON, view the leaderboard, then quit.");
+        output.WriteLine("Tour path: reveal part of MOVIE, solve with a full-word guess, lose DRAGON, view the leaderboard, then quit.");
         output.WriteLine();
 
         try
@@ -80,9 +80,7 @@ public static class DemoRunner
             "Entertainment",
             "m",
             "o",
-            "v",
-            "i",
-            "e",
+            "movie",
             "Play",
             "Medium",
             "General",

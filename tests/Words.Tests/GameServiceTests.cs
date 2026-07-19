@@ -38,6 +38,17 @@ public class GameServiceTests
     }
 
     [Fact]
+    public void SubmitWordGuess_CorrectWord_AwardsScore()
+    {
+        var (service, player) = Setup();
+        var config  = new GameConfig { Category = WordCategory.General, Difficulty = GameDifficulty.Medium };
+        var session = service.StartGame(player, config);
+        var result  = service.SubmitWordGuess(session.Id, "dragon");
+        Assert.Equal(GuessOutcome.Correct, result.Outcome);
+        Assert.True(player.Score > 0);
+    }
+
+    [Fact]
     public void EndGame_Won_AwardsScore()
     {
         var (service, player) = Setup();

@@ -79,6 +79,31 @@ public class GameSession
     }
 
     /// <summary>
+    /// Processes a full-word guess and returns the result.
+    /// </summary>
+    public GuessResult GuessWord(string word)
+    {
+        if (Status != GameStatus.InProgress)
+            return new GuessResult('\0', GuessOutcome.GameOver, MaskedWord, false);
+
+        word = word.Trim().ToUpperInvariant();
+        if (word.Equals(_word.Text, StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var letter in _word.Text)
+                _guessedLetters.Add(letter);
+
+            Status = GameStatus.Won;
+            return new GuessResult('\0', GuessOutcome.Correct, MaskedWord, true);
+        }
+
+        IncorrectGuesses++;
+        if (IncorrectGuesses >= Config.MaxIncorrectGuesses)
+            Status = GameStatus.Lost;
+
+        return new GuessResult('\0', GuessOutcome.Incorrect, MaskedWord, false);
+    }
+
+    /// <summary>
     /// Calculates the score for a won game (returns 0 if not won).
     /// </summary>
     public int CalculateScore() =>

@@ -41,13 +41,15 @@ public class XboxGameHostTests
         var text = output.ToString();
         Assert.Contains("=== Demo Tour ===", text);
         Assert.Contains("A short, scripted playthrough of Guess That Word.", text);
-        Assert.Contains("Tour path: win MOVIE, lose DRAGON, view the leaderboard, then quit.", text);
+        Assert.Contains("Tour path: reveal part of MOVIE, solve with a full-word guess, lose DRAGON, view the leaderboard, then quit.", text);
         Assert.Contains("Enter your GamerTag: DemoPlayer", text);
         Assert.Contains("Choose an option: Play", text);
         Assert.Contains("Select difficulty (Easy / Medium / Hard): Easy", text);
         Assert.Contains("Select category (General / Animals / Food / Sports / Science / Geography / Entertainment / Technology): Entertainment", text);
         Assert.Contains("Hint: A feature-length film shown in cinemas", text);
-        Assert.Contains("Guess a letter: m", text);
+        Assert.Contains("Guess a letter or full word: m", text);
+        Assert.Contains("Guess a letter or full word: movie", text);
+        Assert.Contains("✓ 'MOVIE' is the word!", text);
         Assert.Contains("🎉 You guessed 'MOVIE'! +160 points", text);
         Assert.Contains("💀 Out of guesses! The word was 'DRAGON'.", text);
         Assert.Contains("Choose an option: Leaderboard", text);

@@ -60,6 +60,28 @@ public class GameSessionTests
     }
 
     [Fact]
+    public void GuessWord_CorrectWord_SetsStatusWon()
+    {
+        var session = CreateSession("CAT");
+        var result = session.GuessWord("cat");
+        Assert.Equal(GuessOutcome.Correct, result.Outcome);
+        Assert.Equal("CAT", result.MaskedWord);
+        Assert.Equal(GameStatus.Won, session.Status);
+        Assert.True(result.IsWordSolved);
+    }
+
+    [Fact]
+    public void GuessWord_IncorrectWord_CostsOneGuess()
+    {
+        var session = CreateSession("CAT");
+        var result = session.GuessWord("dog");
+        Assert.Equal(GuessOutcome.Incorrect, result.Outcome);
+        Assert.Equal("___", result.MaskedWord);
+        Assert.Equal(1, session.IncorrectGuesses);
+        Assert.Equal(GameStatus.InProgress, session.Status);
+    }
+
+    [Fact]
     public void Guess_MaxIncorrectGuesses_SetsStatusLost()
     {
         var session = CreateSession("CAT");

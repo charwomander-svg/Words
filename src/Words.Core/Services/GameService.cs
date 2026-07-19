@@ -43,6 +43,18 @@ public class GameService : IGameService
     }
 
     /// <inheritdoc/>
+    public GuessResult SubmitWordGuess(Guid sessionId, string word)
+    {
+        var session = GetSession(sessionId);
+        var result = session.GuessWord(word);
+
+        if (session.Status != GameStatus.InProgress)
+            EndGame(sessionId);
+
+        return result;
+    }
+
+    /// <inheritdoc/>
     public GameSession GetSession(Guid sessionId)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
