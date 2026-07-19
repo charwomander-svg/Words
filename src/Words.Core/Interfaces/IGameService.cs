@@ -28,6 +28,11 @@ public interface IGameService
     GameSession GetSession(Guid sessionId);
 
     /// <summary>
+    /// Returns an immutable snapshot of the current session state.
+    /// </summary>
+    GameSessionState GetSessionState(Guid sessionId);
+
+    /// <summary>
     /// Ends the session, records the result, and awards any earned score.
     /// </summary>
     void EndGame(Guid sessionId);

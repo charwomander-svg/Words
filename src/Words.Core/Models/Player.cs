@@ -15,7 +15,7 @@ public class Player
         if (string.IsNullOrWhiteSpace(gamerTag))
             throw new ArgumentException("GamerTag cannot be empty.", nameof(gamerTag));
 
-        GamerTag = gamerTag;
+        GamerTag = gamerTag.Trim();
     }
 
     public void AddScore(int points)

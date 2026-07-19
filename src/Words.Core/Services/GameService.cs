@@ -63,6 +63,9 @@ public class GameService : IGameService
     }
 
     /// <inheritdoc/>
+    public GameSessionState GetSessionState(Guid sessionId) => GetSession(sessionId).ToState();
+
+    /// <inheritdoc/>
     public void EndGame(Guid sessionId)
     {
         var session = GetSession(sessionId);

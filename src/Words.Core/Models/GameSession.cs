@@ -50,6 +50,9 @@ public class GameSession
         if (Status != GameStatus.InProgress)
             return new GuessResult(letter, GuessOutcome.GameOver, MaskedWord, false);
 
+        if (!char.IsLetter(letter))
+            throw new ArgumentException("Guess must be a letter.", nameof(letter));
+
         letter = char.ToUpperInvariant(letter);
 
         if (_guessedLetters.Contains(letter))
@@ -86,7 +89,13 @@ public class GameSession
         if (Status != GameStatus.InProgress)
             return new GuessResult('\0', GuessOutcome.GameOver, MaskedWord, false);
 
+        if (string.IsNullOrWhiteSpace(word))
+            throw new ArgumentException("Word guess cannot be empty.", nameof(word));
+
         word = word.Trim().ToUpperInvariant();
+        if (!word.All(char.IsLetter))
+            throw new ArgumentException("Word guess must contain letters only.", nameof(word));
+
         if (word.Equals(_word.Text, StringComparison.OrdinalIgnoreCase))
         {
             foreach (var letter in _word.Text)
@@ -110,4 +119,18 @@ public class GameSession
         Status == GameStatus.Won
             ? Config.BasePoints + RemainingGuesses * Config.BonusPerRemainingGuess
             : 0;
+
+    public GameSessionState ToState() =>
+        new(
+            Id,
+            Player.GamerTag,
+            Config.Category,
+            Config.Difficulty,
+            Status,
+            MaskedWord,
+            RemainingGuesses,
+            IncorrectGuesses,
+            GuessedLetters.Order().ToArray(),
+            Hint
+        );
 }

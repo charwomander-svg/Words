@@ -30,8 +30,17 @@ public class ScoreService : IScoreService
         if (points < 0)
             throw new ArgumentOutOfRangeException(nameof(points), "Points must be non-negative.");
 
-        // Keep a canonical reference per gamer tag for leaderboard lookups
-        _players.TryAdd(player.GamerTag, player);
+        // Keep a canonical reference per gamer tag for leaderboard lookups.
+        if (_players.TryGetValue(player.GamerTag, out var leaderboardPlayer) &&
+            !ReferenceEquals(leaderboardPlayer, player))
+        {
+            leaderboardPlayer.AddScore(points);
+        }
+        else
+        {
+            _players[player.GamerTag] = player;
+        }
+
         player.AddScore(points);
         SaveToDisk();
     }
