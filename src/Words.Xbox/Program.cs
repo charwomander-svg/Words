@@ -46,7 +46,7 @@ public static class DemoRunner
             var scoreService = new ScoreService(demoStoragePath);
             var gameService = new GameService(wordService, scoreService);
 
-            using var input = new StringReader(BuildScript());
+            using var input = new DemoScriptReader(BuildScript(), output);
             var host = new XboxGameHost(gameService, scoreService, input, output);
             host.Run();
         }
@@ -90,4 +90,33 @@ public static class DemoRunner
             "Leaderboard",
             "Quit"
         }) + Environment.NewLine;
+
+    private sealed class DemoScriptReader : TextReader
+    {
+        private readonly StringReader _script;
+        private readonly TextWriter _output;
+
+        public DemoScriptReader(string script, TextWriter output)
+        {
+            _script = new StringReader(script);
+            _output = output;
+        }
+
+        public override string? ReadLine()
+        {
+            var line = _script.ReadLine();
+            if (line is not null)
+                _output.WriteLine(line);
+
+            return line;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _script.Dispose();
+
+            base.Dispose(disposing);
+        }
+    }
 }
