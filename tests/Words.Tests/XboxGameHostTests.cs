@@ -40,7 +40,7 @@ public class XboxGameHostTests
 
         var text = output.ToString();
         Assert.Contains("=== Demo Tour ===", text);
-        Assert.Contains("A short, scripted playthrough of Guess That Word.", text);
+        Assert.Contains("A short, scripted playthrough of the legacy Words Xbox host.", text);
         Assert.Contains("Hint: A feature-length film shown in cinemas", text);
         Assert.Contains("🎉 You guessed 'MOVIE'! +160 points", text);
         Assert.Contains("💀 Out of guesses! The word was 'DRAGON'.", text);

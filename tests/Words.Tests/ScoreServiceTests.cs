@@ -70,4 +70,94 @@ public class ScoreServiceTests
                 File.Delete(path);
         }
     }
+
+    [Fact]
+    public void AwardPoints_SameTagAcrossServiceInstances_AccumulatesPersistedScore()
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            var firstRun = new ScoreService(path);
+            firstRun.AwardPoints(new Player("ReturningPlayer"), 100);
+
+            var secondRun = new ScoreService(path);
+            secondRun.AwardPoints(new Player("ReturningPlayer"), 25);
+
+            var reloaded = new ScoreService(path);
+            var leaderboard = reloaded.GetLeaderboard();
+
+            Assert.Single(leaderboard);
+            Assert.Equal("ReturningPlayer", leaderboard[0].GamerTag);
+            Assert.Equal(125, leaderboard[0].Score);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void AwardAchievement_WithStoragePath_PersistsAchievement()
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            var service = new ScoreService(path);
+            var player = new Player("AchievementPlayer");
+
+            var added = service.AwardAchievement(player, AchievementService.PerfectRun.Id);
+
+            var reloaded = new ScoreService(path);
+            var leaderboard = reloaded.GetLeaderboard();
+
+            Assert.True(added);
+            Assert.Single(leaderboard);
+            Assert.Contains(AchievementService.PerfectRun.Id, leaderboard[0].AchievementIds);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void AwardAchievement_Duplicate_ReturnsFalse()
+    {
+        var service = new ScoreService();
+        var player = new Player("AchievementPlayer");
+
+        Assert.True(service.AwardAchievement(player, AchievementService.FirstWin.Id));
+        Assert.False(service.AwardAchievement(player, AchievementService.FirstWin.Id));
+    }
+
+    [Fact]
+    public void Constructor_LegacySaveWithoutVersion_LoadsLeaderboard()
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            File.WriteAllText(path, """
+            [
+              { "GamerTag": "LegacyPlayer", "Score": 321 }
+            ]
+            """);
+
+            var service = new ScoreService(path);
+            var leaderboard = service.GetLeaderboard();
+
+            Assert.Single(leaderboard);
+            Assert.Equal("LegacyPlayer", leaderboard[0].GamerTag);
+            Assert.Equal(321, leaderboard[0].Score);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
 }

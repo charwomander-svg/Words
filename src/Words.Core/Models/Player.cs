@@ -5,10 +5,13 @@ namespace Words.Core.Models;
 /// </summary>
 public class Player
 {
+    private readonly HashSet<string> _achievementIds = new(StringComparer.OrdinalIgnoreCase);
+
     public string GamerTag { get; }
     public int Score { get; private set; }
     public int GamesPlayed { get; private set; }
     public int GamesWon { get; private set; }
+    public IReadOnlySet<string> AchievementIds => _achievementIds;
 
     public Player(string gamerTag)
     {
@@ -29,5 +32,16 @@ public class Player
     {
         GamesPlayed++;
         if (won) GamesWon++;
+    }
+
+    public bool HasAchievement(string achievementId) =>
+        _achievementIds.Contains(achievementId);
+
+    public bool AddAchievement(string achievementId)
+    {
+        if (string.IsNullOrWhiteSpace(achievementId))
+            throw new ArgumentException("Achievement id cannot be empty.", nameof(achievementId));
+
+        return _achievementIds.Add(achievementId);
     }
 }

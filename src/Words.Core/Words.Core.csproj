@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Data\words.json" />
+    <EmbeddedResource Include="Data\english-words-4to20.txt.gz" />
+    <EmbeddedResource Include="Data\word-metadata.tsv" />
   </ItemGroup>
 
 </Project>

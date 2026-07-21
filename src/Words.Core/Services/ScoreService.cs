@@ -9,6 +9,7 @@ namespace Words.Core.Services;
 /// </summary>
 public class ScoreService : IScoreService
 {
+    private const int CurrentSaveVersion = 2;
     private readonly Dictionary<string, Player> _players = new(StringComparer.OrdinalIgnoreCase);
     private readonly string? _storagePath;
 
@@ -30,10 +31,35 @@ public class ScoreService : IScoreService
         if (points < 0)
             throw new ArgumentOutOfRangeException(nameof(points), "Points must be non-negative.");
 
-        // Keep a canonical reference per gamer tag for leaderboard lookups
-        _players.TryAdd(player.GamerTag, player);
-        player.AddScore(points);
+        // Keep a canonical reference per gamer tag for leaderboard updates.
+        if (!_players.TryGetValue(player.GamerTag, out var trackedPlayer))
+        {
+            trackedPlayer = player;
+            _players[player.GamerTag] = trackedPlayer;
+        }
+
+        trackedPlayer.AddScore(points);
         SaveToDisk();
+    }
+
+    /// <inheritdoc/>
+    public bool AwardAchievement(Player player, string achievementId)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        if (string.IsNullOrWhiteSpace(achievementId))
+            throw new ArgumentException("Achievement id cannot be empty.", nameof(achievementId));
+
+        if (!_players.TryGetValue(player.GamerTag, out var trackedPlayer))
+        {
+            trackedPlayer = player;
+            _players[player.GamerTag] = trackedPlayer;
+        }
+
+        var added = trackedPlayer.AddAchievement(achievementId);
+        if (added)
+            SaveToDisk();
+
+        return added;
     }
 
     /// <inheritdoc/>
@@ -61,6 +87,8 @@ public class ScoreService : IScoreService
                 var player = new Player(saved.GamerTag);
                 if (saved.Score > 0)
                     player.AddScore(saved.Score);
+                foreach (var achievementId in saved.AchievementIds ?? [])
+                    player.AddAchievement(achievementId);
 
                 _players[player.GamerTag] = player;
             }
@@ -89,7 +117,13 @@ public class ScoreService : IScoreService
 
             var savedPlayers = _players.Values
                 .OrderByDescending(player => player.Score)
-                .Select(player => new LeaderboardEntry(player.GamerTag, player.Score))
+                .Select(player => new LeaderboardEntry
+                {
+                    Version = CurrentSaveVersion,
+                    GamerTag = player.GamerTag,
+                    Score = player.Score,
+                    AchievementIds = player.AchievementIds.Order(StringComparer.OrdinalIgnoreCase).ToList()
+                })
                 .ToList();
 
             File.WriteAllText(_storagePath, JsonSerializer.Serialize(savedPlayers, JsonOptions));
@@ -102,5 +136,11 @@ public class ScoreService : IScoreService
         }
     }
 
-    private sealed record LeaderboardEntry(string GamerTag, int Score);
+    private sealed class LeaderboardEntry
+    {
+        public int Version { get; set; } = 1;
+        public string GamerTag { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public IReadOnlyList<string>? AchievementIds { get; set; }
+    }
 }

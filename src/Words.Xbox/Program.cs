@@ -37,7 +37,7 @@ public static class DemoRunner
         var demoStoragePath = Path.Combine(demoStorageDirectory, $"leaderboard-{Guid.NewGuid():N}.json");
 
         output.WriteLine("=== Demo Tour ===");
-        output.WriteLine("A short, scripted playthrough of Guess That Word.");
+        output.WriteLine("A short, scripted playthrough of the legacy Words Xbox host.");
         output.WriteLine("It uses curated words and an isolated demo leaderboard.");
         output.WriteLine();
 

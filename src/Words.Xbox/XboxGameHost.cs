@@ -5,7 +5,7 @@ using Words.Core.Interfaces;
 namespace Words.Xbox;
 
 /// <summary>
-/// Xbox game host: drives a console-based "Guess That Word" game loop.
+/// Xbox game host: drives the legacy console word-guessing loop.
 /// On a real Xbox title this class would be wired into the game engine's
 /// update/render cycle rather than a console read loop.
 /// </summary>
@@ -63,9 +63,9 @@ public class XboxGameHost
 
     private void WriteBanner()
     {
-        _output.WriteLine("=== Guess That Word – Xbox Edition ===");
+        _output.WriteLine("=== Words Legacy Xbox Host ===");
         _output.WriteLine();
-        _output.WriteLine("Guess the word one letter at a time.");
+        _output.WriteLine("Legacy letter-guessing mode for platform plumbing.");
         _output.WriteLine("You can choose a difficulty and category before each round.");
     }
 
