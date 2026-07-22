@@ -1,0 +1,75 @@
+<Window x:Class="Words.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Words - Windows Edition"
+        Height="760"
+        Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="#111827">
+    <Grid x:Name="RootLayoutGrid" Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="NavColumnDefinition" Width="280"/>
+            <ColumnDefinition x:Name="NavGapColumnDefinition" Width="20"/>
+            <ColumnDefinition x:Name="ContentColumnDefinition" Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="NavPanelBorder"
+                Grid.Column="0"
+                CornerRadius="12"
+                Background="#1F2937"
+                Padding="16">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="WORDS"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Foreground="#F9FAFB"
+                           Margin="0,0,0,16"/>
+
+                <StackPanel DockPanel.Dock="Top">
+                    <Button Content="Single Player" Tag="Single Player" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Multiplayer" Tag="Multiplayer" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Leaderboards" Tag="Leaderboards" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Statistics" Tag="Statistics" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Settings" Tag="Settings" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Achievements" Tag="Achievements" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                    <Button Content="Credits" Tag="Credits" Click="MenuButton_Click" Margin="0,0,0,10" Padding="12" FontSize="15"/>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+                    <Button Content="Run Visual Demo Tour" Click="RunDemo_Click" Padding="12" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="StatusTextBlock"
+                               Text="Ready"
+                               Foreground="#9CA3AF"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Border x:Name="ContentPanelBorder"
+                Grid.Column="2"
+                CornerRadius="12"
+                Background="#F9FAFB"
+                Padding="24">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="PageTitleTextBlock"
+                           Text="Single Player"
+                           FontSize="34"
+                           FontWeight="Bold"
+                           Foreground="#111827"/>
+
+                <ScrollViewer Grid.Row="2"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="ContentStackPanel"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

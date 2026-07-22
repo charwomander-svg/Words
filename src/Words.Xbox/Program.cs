@@ -1,6 +1,8 @@
 using Words.Core.Models;
 using Words.Core.Services;
 using Words.Xbox;
+using System.Text;
+using System.Threading;
 
 if (args.Any(arg => arg.Equals("--demo", StringComparison.OrdinalIgnoreCase)))
 {
@@ -23,7 +25,10 @@ public static class DemoRunner
 {
     public static void Run(TextWriter? output = null)
     {
-        output ??= Console.Out;
+        var targetOutput = output ?? Console.Out;
+        var pacedOutput = output is null
+            ? new DemoPacedWriter(targetOutput, lineDelayMs: 120)
+            : targetOutput;
 
         var wordService = new WordService(new[]
         {
@@ -36,10 +41,10 @@ public static class DemoRunner
 
         var demoStoragePath = Path.Combine(demoStorageDirectory, $"leaderboard-{Guid.NewGuid():N}.json");
 
-        output.WriteLine("=== Demo Tour ===");
-        output.WriteLine("A short, scripted playthrough of Guess That Word.");
-        output.WriteLine("It uses curated words and an isolated demo leaderboard.");
-        output.WriteLine();
+        pacedOutput.WriteLine("=== Demo Tour ===");
+        pacedOutput.WriteLine("A full, scripted walkthrough of menu pages and gameplay flows.");
+        pacedOutput.WriteLine("It uses curated words and an isolated demo leaderboard.");
+        pacedOutput.WriteLine();
 
         try
         {
@@ -47,7 +52,7 @@ public static class DemoRunner
             var gameService = new GameService(wordService, scoreService);
 
             using var input = new StringReader(BuildScript());
-            var host = new XboxGameHost(gameService, scoreService, input, output);
+            var host = new XboxGameHost(gameService, scoreService, input, pacedOutput);
             host.Run();
         }
         finally
@@ -70,7 +75,8 @@ public static class DemoRunner
         string.Join(Environment.NewLine, new[]
         {
             "DemoPlayer",
-            "Play",
+            "SinglePlayer",
+            "Classic",
             "Easy",
             "Entertainment",
             "m",
@@ -78,7 +84,9 @@ public static class DemoRunner
             "v",
             "i",
             "e",
-            "Play",
+            "B",
+            "SinglePlayer",
+            "Classic",
             "Medium",
             "General",
             "q",
@@ -87,7 +95,62 @@ public static class DemoRunner
             "y",
             "z",
             "k",
-            "Leaderboard",
-            "Quit"
+            "B",
+            "Multiplayer",
+            "HeadToHead",
+            "CreateLobby",
+            "AddLocalGuest",
+            "DemoGuest",
+            "StartMatch",
+            "B",
+            "Multiplayer",
+            "Tournament",
+            "Join",
+            "TRNY01",
+            "AddLocalGuest",
+            "Guest2",
+            "AddLocalGuest",
+            "Guest3",
+            "AddLocalGuest",
+            "Guest4",
+            "StartMatch",
+            "B",
+            "B",
+            "Statistics",
+            "Settings",
+            "SetTheme",
+            "Dark",
+            "SetDifficultyPreference",
+            "Competitive",
+            "B",
+            "Achievements",
+            "Credits",
+            "Leaderboards",
+            "Q"
         }) + Environment.NewLine;
+
+    private sealed class DemoPacedWriter : TextWriter
+    {
+        private readonly TextWriter _inner;
+        private readonly int _lineDelayMs;
+
+        public DemoPacedWriter(TextWriter inner, int lineDelayMs)
+        {
+            _inner = inner;
+            _lineDelayMs = lineDelayMs;
+        }
+
+        public override Encoding Encoding => _inner.Encoding;
+
+        public override void Write(char value) => _inner.Write(value);
+
+        public override void Write(string? value) => _inner.Write(value);
+
+        public override void WriteLine(string? value)
+        {
+            _inner.WriteLine(value);
+            _inner.Flush();
+            Thread.Sleep(_lineDelayMs);
+        }
+    }
 }

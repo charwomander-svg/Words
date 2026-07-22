@@ -19,4 +19,9 @@ public class GameConfig
 
     /// <summary>Bonus multiplier applied for each remaining guess at win time.</summary>
     public int BonusPerRemainingGuess { get; init; } = 10;
+
+    /// <summary>
+    /// Preferred word length for game sessions. Defaults to 5 across modes.
+    /// </summary>
+    public int PreferredWordLength { get; init; } = 5;
 }

@@ -21,10 +21,59 @@ public class GameService : IGameService
     /// <inheritdoc/>
     public GameSession StartGame(Player player, GameConfig config)
     {
+        return StartGame(player, config, null);
+    }
+
+    public GameSession StartGame(Player player, GameConfig config, Func<string, bool>? answerPredicate)
+    {
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(config);
 
-        var word = _wordService.GetRandomWord(config.Category, config.Difficulty);
+        bool MatchesWord(Word candidate, bool includeLengthConstraint)
+        {
+            if (answerPredicate is not null && !answerPredicate(candidate.Text))
+            {
+                return false;
+            }
+
+            if (includeLengthConstraint && config.PreferredWordLength > 0 && candidate.Text.Length != config.PreferredWordLength)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        Word? word = null;
+        const int maxAttempts = 200;
+
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var candidate = _wordService.GetRandomWord(config.Category, config.Difficulty);
+            if (MatchesWord(candidate, includeLengthConstraint: true))
+            {
+                word = candidate;
+                break;
+            }
+        }
+
+        // Fall back to any length if no matching word exists at the preferred length.
+        if (word is null)
+        {
+            for (var attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var candidate = _wordService.GetRandomWord(config.Category, config.Difficulty);
+                if (MatchesWord(candidate, includeLengthConstraint: false))
+                {
+                    word = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (word is null)
+            throw new InvalidOperationException("No matching word found for the selected mode constraints.");
+
         var session = new GameSession(player, word, config);
         _sessions[session.Id] = session;
         return session;
