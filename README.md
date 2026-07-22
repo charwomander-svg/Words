@@ -1,5 +1,14 @@
 # Words
-For the Xbox game "guess that word" 
+For the game "guess that word" with a Windows-first UI path.
+
+## Windows app (visual screens)
+
+Run the new Windows desktop shell:
+
+`dotnet run --project src/Words.Windows/Words.Windows.csproj`
+
+Use **Run Visual Demo Tour** in the app to auto-walk all major pages.
+
 Run the repeatable demo tour with `dotnet run --project src/Words.Xbox/Words.Xbox.csproj -- --demo`.
 It uses curated words and an isolated demo leaderboard, so it does not touch your normal save data.
 
